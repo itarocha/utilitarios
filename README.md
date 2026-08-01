@@ -26,7 +26,7 @@ A ferramenta opera em três modos:
 
 1. **Codificação (`-encode`)**: lê um arquivo, aplica um pipeline de transformações e gera `N` imagens QR Code (`qr_001.png`, `qr_002.png`, …) num diretório de saída.
 2. **Decodificação (`-decode`)**: lê as imagens `qr_*.png` de um diretório, reconstrói os dados e grava o arquivo original.
-3. **Geração de PNG a partir de texto Base64 (`make_png`)**: lê um arquivo `.txt` com conteúdo Base64 (por exemplo, copiado de um leitor de QR no celular) e regenera o QR Code PNG correspondente.
+3. **Geração de PNG a partir de texto Base64 (`-make_png`)**: lê um arquivo `.txt` com conteúdo Base64 (por exemplo, copiado de um leitor de QR no celular) e regenera o QR Code PNG correspondente.
 
 O código é organizado em classes pequenas e focadas, cada uma com responsabilidade única, permitindo que cada etapa do pipeline seja testada isoladamente.
 
@@ -81,7 +81,7 @@ Checksum.verify                   → compara CRC32 com o armazenado no chunk 0
 Arquivo de saída
 ```
 
-### Regenerar PNG a partir de texto Base64 (make_png)
+### Regenerar PNG a partir de texto Base64 (-make_png)
 
 ```
 Arquivo .txt com conteúdo Base64 (ex.: copiado de leitor de QR no celular)
@@ -215,7 +215,7 @@ Classe de orquestração. Recebe as etapas realizadas pelas demais classes.
 **Métodos**
 
 - **`main(String[] args)`** — ponto de entrada da CLI.
-  - Parâmetros: `-encode <arquivo_entrada> <diretorio_saida>`, `-decode <diretorio_entrada> <arquivo_saida>` ou `make_png <arquivo_texto> <arquivo_png_saida>`.
+  - Parâmetros: `-encode <arquivo_entrada> <diretorio_saida>`, `-decode <diretorio_entrada> <arquivo_saida>` ou `-make_png <arquivo_texto> <arquivo_png_saida>`.
   - Com menos de 3 argumentos imprime o uso e sai com código 1.
   - Modo desconhecido imprime erro e sai com código 1.
 
@@ -330,7 +330,7 @@ java br.com.itarocha.utilitarios.qr.QRCodeTool -encode <arquivo_entrada> <direto
 java br.com.itarocha.utilitarios.qr.QRCodeTool -decode <diretorio_entrada> <arquivo_saida>
 
 # Regenerar um QR Code PNG a partir de um arquivo texto com Base64
-java br.com.itarocha.utilitarios.qr.QRCodeTool make_png <arquivo_texto> <arquivo_png_saida>
+java br.com.itarocha.utilitarios.qr.QRCodeTool -make_png <arquivo_texto> <arquivo_png_saida>
 ```
 
 Exemplos:
@@ -343,7 +343,7 @@ java br.com.itarocha.utilitarios.qr.QRCodeTool -encode documento.pdf ./qrs
 java br.com.itarocha.utilitarios.qr.QRCodeTool -decode ./qrs documento_recuperado.pdf
 
 # Regenera o QR a partir de um texto Base64 (ex.: copiado de um leitor de QR no celular)
-java br.com.itarocha.utilitarios.qr.QRCodeTool make_png qr_texto.txt qr_regenerado.png
+java br.com.itarocha.utilitarios.qr.QRCodeTool -make_png qr_texto.txt qr_regenerado.png
 ```
 
 Para executar com o Maven (com o plugin `exec` configurado ou via classpath):
@@ -377,14 +377,14 @@ Execute todos os testes com:
 
 As classes de teste do pacote `qr` cobrem cada etapa isoladamente (testes unitários), o fluxo fim-a-fim via fachada e **cenários integrados completos por pasta**:
 
-| Classe de teste          | Cobertura                                                                 |
-|--------------------------|---------------------------------------------------------------------------|
+| Classe de teste          | Cobertura                                                                                                                                                                                                                          |
+|--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `QRCodeToolTest`         | Fim-a-fim via fachada: round-trips (pequeno, múltiplos chunks, binário), arquivo vazio lança exceção, chunk faltante e QR corrompido falham; `makePng` regenera PNG a partir de texto Base64 e texto inválido lança `IOException`. |
-| `QRCodeToolIntegrationTest` | Cenários completos por pasta: gera os QR Codes de um arquivo original, lê o conteúdo em `arquivo_N.txt`, regenera PNGs via `make_png` e reconstrói o `<original>_traduzido.<ext>`, comparando o **MD5** com o original. |
-| `CompressionTest`        | Round-trip compress/decompress (pequeno, grande, vazio); dados inválidos lançam `IOException`. |
-| `ChecksumTest`           | Vetor padrão CRC32 (`"123456789"` → `0xCBF43926`); `verify` verdadeiro/falso; checksum de dados vazios. |
-| `ChunkCodecTest`         | `split` gera quantidade/tamanhos esperados (cabeçalho 8/4 bytes); round-trip split→reassemble; chunk faltante/duplicado/inconsistente lançam `IOException`. |
-| `QrCodeImageTest`        | Imagem ≥500×500; `read` devolve o mesmo payload; conteúdo é Base64 legível; arquivo corrompido lança exceção; `writeFromBase64` (round-trip, com quebras de linha, Base64 inválido e conteúdo vazio). |
+| `QRCodeToolIntegrationTest` | Cenários completos por pasta: gera os QR Codes de um arquivo original, lê o conteúdo em `arquivo_N.txt`, regenera PNGs via `-make_png` e reconstrói o `<original>_traduzido.<ext>`, comparando o **MD5** com o original.           |
+| `CompressionTest`        | Round-trip compress/decompress (pequeno, grande, vazio); dados inválidos lançam `IOException`.                                                                                                                                     |
+| `ChecksumTest`           | Vetor padrão CRC32 (`"123456789"` → `0xCBF43926`); `verify` verdadeiro/falso; checksum de dados vazios.                                                                                                                            |
+| `ChunkCodecTest`         | `split` gera quantidade/tamanhos esperados (cabeçalho 8/4 bytes); round-trip split→reassemble; chunk faltante/duplicado/inconsistente lançam `IOException`.                                                                        |
+| `QrCodeImageTest`        | Imagem ≥500×500; `read` devolve o mesmo payload; conteúdo é Base64 legível; arquivo corrompido lança exceção; `writeFromBase64` (round-trip, com quebras de linha, Base64 inválido e conteúdo vazio).                              |
 
 ### Testes integrados — cenários por pasta
 

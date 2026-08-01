@@ -20,7 +20,7 @@ public class QRCodeTool {
             System.err.println("Uso:");
             System.err.println("  Codificar: java QRCodeTool -encode <arquivo_entrada> <diretorio_saida>");
             System.err.println("  Decodificar: java QRCodeTool -decode <diretorio_entrada> <arquivo_saida>");
-            System.err.println("  Gerar PNG a partir de texto Base64: java QRCodeTool make_png <arquivo_texto> <arquivo_png_saida>");
+            System.err.println("  Gerar PNG a partir de texto Base64: java QRCodeTool -make_png <arquivo_texto> <arquivo_png_saida>");
             System.exit(1);
         }
 
@@ -29,10 +29,10 @@ public class QRCodeTool {
             encode(args[1], args[2]);
         } else if ("-decode".equalsIgnoreCase(mode)) {
             decode(args[1], args[2]);
-        } else if ("make_png".equalsIgnoreCase(mode)) {
+        } else if ("-make_png".equalsIgnoreCase(mode)) {
             makePng(args[1], args[2]);
         } else {
-            System.err.println("Modo inválido. Use -encode, -decode ou make_png.");
+            System.err.println("Modo inválido. Use -encode, -decode ou -make_png.");
             System.exit(1);
         }
     }
