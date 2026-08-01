@@ -1,6 +1,7 @@
 package br.com.itarocha.utilitarios.qr;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -19,6 +20,7 @@ public class QRCodeTool {
             System.err.println("Uso:");
             System.err.println("  Codificar: java QRCodeTool -encode <arquivo_entrada> <diretorio_saida>");
             System.err.println("  Decodificar: java QRCodeTool -decode <diretorio_entrada> <arquivo_saida>");
+            System.err.println("  Gerar PNG a partir de texto Base64: java QRCodeTool make_png <arquivo_texto> <arquivo_png_saida>");
             System.exit(1);
         }
 
@@ -27,8 +29,10 @@ public class QRCodeTool {
             encode(args[1], args[2]);
         } else if ("-decode".equalsIgnoreCase(mode)) {
             decode(args[1], args[2]);
+        } else if ("make_png".equalsIgnoreCase(mode)) {
+            makePng(args[1], args[2]);
         } else {
-            System.err.println("Modo inválido. Use -encode ou -decode.");
+            System.err.println("Modo inválido. Use -encode, -decode ou make_png.");
             System.exit(1);
         }
     }
@@ -88,6 +92,15 @@ public class QRCodeTool {
 
         Files.write(Paths.get(outputFile), original);
         System.out.println("Decodificação concluída. Arquivo recuperado: " + outputFile);
+    }
+
+    // ------------------------------------------------------------
+    //  GERAÇÃO DE PNG A PARTIR DE TEXTO BASE64
+    // ------------------------------------------------------------
+    public static void makePng(String inputTextFile, String outputPngFile) throws Exception {
+        String base64 = Files.readString(Paths.get(inputTextFile), StandardCharsets.UTF_8);
+        QrCodeImage.writeFromBase64(base64, Paths.get(outputPngFile));
+        System.out.println("PNG gerado: " + outputPngFile);
     }
 
     private static List<Path> listQrFiles(Path dir) throws IOException {

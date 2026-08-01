@@ -22,10 +22,11 @@ O objetivo é permitir o transporte de arquivos arbitrários (binários ou texto
 
 ## Visão geral
 
-A ferramenta opera em dois modos:
+A ferramenta opera em três modos:
 
 1. **Codificação (`-encode`)**: lê um arquivo, aplica um pipeline de transformações e gera `N` imagens QR Code (`qr_001.png`, `qr_002.png`, …) num diretório de saída.
 2. **Decodificação (`-decode`)**: lê as imagens `qr_*.png` de um diretório, reconstrói os dados e grava o arquivo original.
+3. **Geração de PNG a partir de texto Base64 (`make_png`)**: lê um arquivo `.txt` com conteúdo Base64 (por exemplo, copiado de um leitor de QR no celular) e regenera o QR Code PNG correspondente.
 
 O código é organizado em classes pequenas e focadas, cada uma com responsabilidade única, permitindo que cada etapa do pipeline seja testada isoladamente.
 
@@ -80,6 +81,21 @@ Checksum.verify                   → compara CRC32 com o armazenado no chunk 0
 Arquivo de saída
 ```
 
+### Regenerar PNG a partir de texto Base64 (make_png)
+
+```
+Arquivo .txt com conteúdo Base64 (ex.: copiado de leitor de QR no celular)
+      │
+      ▼
+QrCodeImage.writeFromBase64      → remove quebras de linha, decodifica Base64,
+      │                            valida o conteúdo
+      ▼
+QrCodeImage.write                → reutiliza o mesmo processo de geração
+      │
+      ▼
+Arquivo PNG de saída
+```
+
 ---
 
 ## Detalhes de projeto e algoritmos
@@ -131,10 +147,11 @@ Com 2100 bytes de dados:
 
 ### Tamanho das imagens (ZXing)
 
-- **`QR_PIXEL_SCALE = 2`**: cada módulo do QR é renderizado com pelo menos **2 pixels**. Testes empíricos mostraram que 1 pixel/módulo não é decodificável de forma confiável pelo ZXing.
-- **`MIN_IMAGE_SIZE = 500`**: a imagem final tem pelo menos **500×500 pixels**.
-- A versão do QR é escolhida **automaticamente** pelo ZXing (a menor que comporta o payload); apenas o tamanho final é ajustado para atender aos mínimos.
+- **`QR_PIXEL_SCALE = 2`**: cada módulo do QR é renderizado com **exatamente 2 pixels**. Testes empíricos (sweeps com dados aleatórios) mostraram que 1 pixel/módulo não é decodificável de forma confiável e que escalas maiores (ex.: 5 px/módulo) também **reduzem** a robustez de decodificação — o ZXing pode falhar ou devolver conteúdo errado em imagens grandes demais para certos payloads densos.
+- **`MIN_IMAGE_SIZE = 500`**: a imagem final tem pelo menos **500×500 pixels**. Esse mínimo é atingido com **margem branca (padding)**, e **não** aumentando o tamanho do módulo.
+- A versão do QR é escolhida **automaticamente** pelo ZXing (a menor que comporta o payload).
 - **Nível de correção de erro L** (baixo): maximiza a quantidade de dados por QR.
+- A leitura usa `TRY_HARDER` primeiro e, se não encontrar o QR, tenta novamente com `PURE_BARCODE` (modo que lê a matriz limpa de imagens geradas pela própria ferramenta).
 
 ### Nomeação e ordenação dos arquivos
 
@@ -162,14 +179,20 @@ utilitarios/
     │   │       └── QrCodeImage.java               # Geração/leitura de imagem
     │   └── resources/application.properties
     └── test
-        └── java/br/com/itarocha/utilitarios/
-            ├── UtilitariosApplicationTests.java
-            └── qr/
-                ├── QRCodeToolTest.java
-                ├── CompressionTest.java
-                ├── ChecksumTest.java
-                ├── ChunkCodecTest.java
-                └── QrCodeImageTest.java
+        ├── java/br/com/itarocha/utilitarios/
+        │   ├── UtilitariosApplicationTests.java
+        │   └── qr/
+        │       ├── QRCodeToolTest.java
+        │       ├── QRCodeToolIntegrationTest.java
+        │       ├── CompressionTest.java
+        │       ├── ChecksumTest.java
+        │       ├── ChunkCodecTest.java
+        │       └── QrCodeImageTest.java
+        └── resources/
+            └── arquivos/
+                ├── pasta_01/   # QRCodeTool.java (1 QR)
+                ├── pasta_02/   # README.md (4 QRs)
+                └── pasta_03/   # texto_longo.txt (4 QRs)
 ```
 
 ---
@@ -192,7 +215,7 @@ Classe de orquestração. Recebe as etapas realizadas pelas demais classes.
 **Métodos**
 
 - **`main(String[] args)`** — ponto de entrada da CLI.
-  - Parâmetros: `-encode <arquivo_entrada> <diretorio_saida>` ou `-decode <diretorio_entrada> <arquivo_saida>`.
+  - Parâmetros: `-encode <arquivo_entrada> <diretorio_saida>`, `-decode <diretorio_entrada> <arquivo_saida>` ou `make_png <arquivo_texto> <arquivo_png_saida>`.
   - Com menos de 3 argumentos imprime o uso e sai com código 1.
   - Modo desconhecido imprime erro e sai com código 1.
 
@@ -211,6 +234,11 @@ Classe de orquestração. Recebe as etapas realizadas pelas demais classes.
   - Descompacta (`Compression.decompress`).
   - Verifica o checksum; lança `IOException` se divergente.
   - Grava o arquivo recuperado.
+
+- **`makePng(String inputTextFile, String outputPngFile)`**
+  - Lê o arquivo texto em UTF-8 com o conteúdo Base64.
+  - Chama `QrCodeImage.writeFromBase64` para validar e regenerar o QR PNG.
+  - Imprime o caminho do PNG gerado.
 
 - **`listQrFiles(Path dir)`** *(privado)* — lista os arquivos do diretório que casam com `qr_*.png`.
 
@@ -263,19 +291,24 @@ Classe de orquestração. Recebe as etapas realizadas pelas demais classes.
 
 | Constante        | Valor | Descrição                                              |
 |------------------|-------|--------------------------------------------------------|
-| `QR_PIXEL_SCALE` | `2`   | Pixels mínimos por módulo (confiabilidade de leitura). |
-| `MIN_IMAGE_SIZE` | `500` | Tamanho mínimo da imagem em pixels (largura/altura).   |
+| `QR_PIXEL_SCALE` | `2`   | Pixels por módulo (robustez de leitura; escala fixa).  |
+| `MIN_IMAGE_SIZE` | `500` | Tamanho mínimo da imagem em pixels (margem branca).    |
 
 **Métodos**
 
 - **`write(byte[] payload, Path file)`**
   - Converte o payload para **Base64** (conteúdo texto legível).
   - Codifica o QR com ZXing (`QRCodeWriter`), correção de erro nível L e charset UTF-8, versão automática.
-  - Calcula a escala para atender `QR_PIXEL_SCALE` e `MIN_IMAGE_SIZE`.
-  - Renderiza e grava o PNG. Lança `WriterException`/`IOException`.
+  - Renderiza com `QR_PIXEL_SCALE` px/módulo e adiciona margem branca centralizada até `MIN_IMAGE_SIZE`.
+  - Grava o PNG. Lança `WriterException`/`IOException`.
+
+- **`writeFromBase64(String base64, Path file)`**
+  - Remove quebras de linha/espaços (`\s+`) do texto.
+  - Decodifica o Base64 para os bytes do payload; conteúdo vazio → `IllegalArgumentException`, Base64 inválido → `IOException`.
+  - Delega a renderização para `write`.
 
 - **`read(Path file)`**
-  - Lê a imagem (`ImageIO`), binariza e decodifica com `MultiFormatReader` (charset UTF-8).
+  - Lê a imagem (`ImageIO`), binariza e decodifica com `MultiFormatReader` — tenta `TRY_HARDER` e, em caso de `NotFoundException`, repete com `PURE_BARCODE` (charset UTF-8).
   - Converte o texto Base64 de volta para os bytes do payload.
   - Base64 inválido → `IOException` com mensagem. Lança `NotFoundException` se não houver QR na imagem.
 
@@ -295,6 +328,9 @@ java br.com.itarocha.utilitarios.qr.QRCodeTool -encode <arquivo_entrada> <direto
 
 # Decodificar (recupera o arquivo)
 java br.com.itarocha.utilitarios.qr.QRCodeTool -decode <diretorio_entrada> <arquivo_saida>
+
+# Regenerar um QR Code PNG a partir de um arquivo texto com Base64
+java br.com.itarocha.utilitarios.qr.QRCodeTool make_png <arquivo_texto> <arquivo_png_saida>
 ```
 
 Exemplos:
@@ -305,6 +341,9 @@ java br.com.itarocha.utilitarios.qr.QRCodeTool -encode documento.pdf ./qrs
 
 # Recupera o arquivo a partir de ./qrs
 java br.com.itarocha.utilitarios.qr.QRCodeTool -decode ./qrs documento_recuperado.pdf
+
+# Regenera o QR a partir de um texto Base64 (ex.: copiado de um leitor de QR no celular)
+java br.com.itarocha.utilitarios.qr.QRCodeTool make_png qr_texto.txt qr_regenerado.png
 ```
 
 Para executar com o Maven (com o plugin `exec` configurado ou via classpath):
@@ -321,6 +360,8 @@ Comportamento de saída:
 | Poucos argumentos           | Imprime uso; **código de saída 1**.    |
 | Modo inválido               | Imprime erro; **código de saída 1**.   |
 | Arquivo de entrada vazio    | `IllegalArgumentException`.            |
+| Texto Base64 vazio          | `IllegalArgumentException`.            |
+| Texto Base64 inválido       | `IOException`.                         |
 | QR inválido/corrompido      | Exceção `IOException`/`NotFoundException`. |
 | Sem imagens no diretório    | Imprime aviso e retorna sem erro.      |
 
@@ -334,15 +375,49 @@ Execute todos os testes com:
 ./mvnw test
 ```
 
-As classes de teste do pacote `qr` cobrem cada etapa isoladamente e o fluxo fim-a-fim:
+As classes de teste do pacote `qr` cobrem cada etapa isoladamente (testes unitários), o fluxo fim-a-fim via fachada e **cenários integrados completos por pasta**:
 
 | Classe de teste          | Cobertura                                                                 |
 |--------------------------|---------------------------------------------------------------------------|
-| `QRCodeToolTest`         | Fim-a-fim via fachada: round-trips (pequeno, múltiplos chunks, binário), arquivo vazio lança exceção, chunk faltante e QR corrompido falham. |
+| `QRCodeToolTest`         | Fim-a-fim via fachada: round-trips (pequeno, múltiplos chunks, binário), arquivo vazio lança exceção, chunk faltante e QR corrompido falham; `makePng` regenera PNG a partir de texto Base64 e texto inválido lança `IOException`. |
+| `QRCodeToolIntegrationTest` | Cenários completos por pasta: gera os QR Codes de um arquivo original, lê o conteúdo em `arquivo_N.txt`, regenera PNGs via `make_png` e reconstrói o `<original>_traduzido.<ext>`, comparando o **MD5** com o original. |
 | `CompressionTest`        | Round-trip compress/decompress (pequeno, grande, vazio); dados inválidos lançam `IOException`. |
 | `ChecksumTest`           | Vetor padrão CRC32 (`"123456789"` → `0xCBF43926`); `verify` verdadeiro/falso; checksum de dados vazios. |
 | `ChunkCodecTest`         | `split` gera quantidade/tamanhos esperados (cabeçalho 8/4 bytes); round-trip split→reassemble; chunk faltante/duplicado/inconsistente lançam `IOException`. |
-| `QrCodeImageTest`        | Imagem ≥500×500; `read` devolve o mesmo payload; conteúdo é Base64 legível; arquivo corrompido lança exceção. |
+| `QrCodeImageTest`        | Imagem ≥500×500; `read` devolve o mesmo payload; conteúdo é Base64 legível; arquivo corrompido lança exceção; `writeFromBase64` (round-trip, com quebras de linha, Base64 inválido e conteúdo vazio). |
+
+### Testes integrados — cenários por pasta
+
+O `QRCodeToolIntegrationTest` usa `@ParameterizedTest` + `@MethodSource` para **ler todas as pastas `pasta_*`** em `src/test/resources/arquivos`. Cada pasta é um cenário completo e autocontido: adicionar uma nova `pasta_XX` com um arquivo original faz o cenário rodar automaticamente.
+
+**Conteúdo de cada pasta após a execução:**
+
+| Arquivo                                  | Origem                                                        |
+|------------------------------------------|---------------------------------------------------------------|
+| arquivo **original**                     | Único arquivo versionado na pasta (o ponto de partida).       |
+| `qr_001.png … qr_00n.png`                | Gerados pelo encoder a partir do original.                    |
+| `arquivo_01.txt … arquivo_n.txt`         | Conteúdo Base64 lido de cada QR (simula a leitura por celular). |
+| `arquivo_png_01.png … arquivo_png_n.png` | Regenerados via `make_png` a partir de cada arquivo texto.    |
+| `<nome>_traduzido.<ext>`                 | Arquivo reconstruído via `decode`, com **MD5 igual ao original**. |
+
+**Passos executados por cenário:**
+
+1. Limpa os artefatos gerados anteriormente (`qr_*.png`, `arquivo_*.txt`, `arquivo_png_*.png`, `*_traduzido.*`), restando apenas o original.
+2. `QRCodeTool.encode(original, pasta)` → gera os `qr_*.png`; verifica que a quantidade atende ao mínimo esperado do cenário.
+3. Para cada `k`, lê `qr_00k.png` (`QrCodeImage.read`) e grava `arquivo_0k.txt` com `Base64.encodeToString(payload)`; valida que o conteúdo é Base64 válido e igual ao do payload.
+4. Para cada `k`, `QRCodeTool.makePng(arquivo_0k.txt, arquivo_png_0k.png)`; valida que o PNG decodifica para o mesmo payload de `qr_00k.png`.
+5. `QRCodeTool.decode(pasta, <nome>_traduzido.<ext>)`; valida que o conteúdo é **idêntico** ao original.
+6. Compara o **MD5** do original com o do arquivo traduzido.
+
+**Cenários disponíveis:**
+
+| Cenário    | Arquivo original | QR Codes | Observação                                   |
+|------------|------------------|----------|----------------------------------------------|
+| `pasta_01` | `QRCodeTool.java` | 1      | Fonte real, arquivo pequeno.                 |
+| `pasta_02` | `README.md`      | 4      | Texto real grande do repositório.            |
+| `pasta_03` | `texto_longo.txt`| 4      | Fixture texto determinístico (~24 KB).       |
+
+> Observações: apenas o arquivo original é versionado; os demais artefatos são **regenerados a cada execução** (o teste remove os anteriores, tornando o cenário idempotente). O MD5 é a asserção final de integridade de cada cenário.
 
 ---
 

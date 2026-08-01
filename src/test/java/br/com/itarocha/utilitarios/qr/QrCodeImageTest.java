@@ -11,6 +11,7 @@ import org.junit.jupiter.api.io.TempDir;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Base64;
@@ -86,6 +87,43 @@ class QrCodeImageTest {
         ImageIO.write(image, "PNG", file.toFile());
 
         assertThrows(Exception.class, () -> QrCodeImage.read(file));
+    }
+
+    @Test
+    void writeFromBase64RoundTrip() throws Exception {
+        byte[] payload = randomBytes(600);
+        String base64 = Base64.getEncoder().encodeToString(payload);
+        Path file = tempDir.resolve("from_base64.png");
+
+        QrCodeImage.writeFromBase64(base64, file);
+
+        assertArrayEquals(payload, QrCodeImage.read(file));
+    }
+
+    @Test
+    void writeFromBase64AcceptsWrappedLines() throws Exception {
+        byte[] payload = randomBytes(600);
+        String base64 = Base64.getEncoder().encodeToString(payload);
+        String wrapped = String.join("\n", base64.split("(?<=\\G.{40})"));
+        Path file = tempDir.resolve("wrapped.png");
+
+        QrCodeImage.writeFromBase64(wrapped + "\n", file);
+
+        assertArrayEquals(payload, QrCodeImage.read(file));
+    }
+
+    @Test
+    void writeFromBase64InvalidThrows() {
+        Path file = tempDir.resolve("invalid.png");
+
+        assertThrows(IOException.class, () -> QrCodeImage.writeFromBase64("!!!não é base64!!!", file));
+    }
+
+    @Test
+    void writeFromBase64EmptyThrows() {
+        Path file = tempDir.resolve("empty.png");
+
+        assertThrows(IllegalArgumentException.class, () -> QrCodeImage.writeFromBase64("   \n\t ", file));
     }
 
     private static byte[] randomBytes(int size) {

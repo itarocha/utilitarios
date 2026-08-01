@@ -6,10 +6,12 @@ import org.junit.jupiter.api.io.TempDir;
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 import java.util.Random;
 
@@ -114,6 +116,30 @@ class QRCodeToolTest {
         Path recovered = tempDir.resolve("corromper_recuperado.bin");
         assertThrows(Exception.class,
                 () -> QRCodeTool.decode(outDir.toString(), recovered.toString()));
+    }
+
+    @Test
+    void makePngFromBase64Text() throws Exception {
+        byte[] payload = randomBytes(800);
+        String base64 = Base64.getEncoder().encodeToString(payload);
+        Path textFile = tempDir.resolve("meu_arquivo_texto.txt");
+        Files.writeString(textFile, base64, StandardCharsets.UTF_8);
+
+        Path pngFile = tempDir.resolve("qrcode_gerado.png");
+        QRCodeTool.makePng(textFile.toString(), pngFile.toString());
+
+        assertTrue(Files.exists(pngFile));
+        assertArrayEquals(payload, QrCodeImage.read(pngFile));
+    }
+
+    @Test
+    void makePngInvalidBase64Throws() throws Exception {
+        Path textFile = tempDir.resolve("invalido.txt");
+        Files.writeString(textFile, "isto não é base64 válido!@@@");
+
+        Path pngFile = tempDir.resolve("invalido.png");
+        assertThrows(IOException.class,
+                () -> QRCodeTool.makePng(textFile.toString(), pngFile.toString()));
     }
 
     private static byte[] randomBytes(int size) {
