@@ -34,18 +34,18 @@ public class QRCodeTool {
         } else if ("-make_png".equalsIgnoreCase(mode)) {
             makePng(args[1], args.length >= 3 ? args[2] : null);
         } else {
-            System.err.println("Modo inválido. Use -encode, -decode ou -make_png.");
+            System.err.println(Messages.INVALID_MODE);
             System.exit(1);
         }
     }
 
     private static void usage() {
-        System.err.println("Uso:");
-        System.err.println("  Codificar: java QRCodeTool -encode <arquivo_entrada> <diretorio_saida>");
-        System.err.println("  Decodificar: java QRCodeTool -decode <diretorio_entrada> <arquivo_saida>");
-        System.err.println("  Gerar PNGs a partir de arquivos texto Base64:");
-        System.err.println("    java QRCodeTool -make_png <diretorio_entrada> [<diretorio_saida>]");
-        System.err.println("    (se <diretorio_saida> for omitido, usa o próprio diretório de entrada)");
+        System.err.println(Messages.USAGE_HEADER);
+        System.err.println(Messages.USAGE_ENCODE);
+        System.err.println(Messages.USAGE_DECODE);
+        System.err.println(Messages.USAGE_MAKE_PNG_TITLE);
+        System.err.println(Messages.USAGE_MAKE_PNG_CMD);
+        System.err.println(Messages.USAGE_MAKE_PNG_HINT);
     }
 
     // ------------------------------------------------------------
@@ -55,7 +55,7 @@ public class QRCodeTool {
         byte[] originalData = Files.readAllBytes(Paths.get(inputFile));
 
         if (originalData.length == 0) {
-            throw new IllegalArgumentException("Arquivo de entrada vazio: " + inputFile);
+            throw new IllegalArgumentException(Messages.EMPTY_INPUT_FILE.formatted(inputFile));
         }
 
         long checksum = Checksum.checksum(originalData);
@@ -68,12 +68,12 @@ public class QRCodeTool {
         }
 
         for (int i = 0; i < chunks.size(); i++) {
-            String fileName = String.format("%s%0" + Constants.FILE_NAME_DIGITS + "d.png",
-                    Constants.QR_PREFIX, i + 1);
+            String fileName = ("%s%0" + Constants.FILE_NAME_DIGITS + "d.png")
+                    .formatted(Constants.QR_PREFIX, i + 1);
             QrCodeImage.write(chunks.get(i), outPath.resolve(fileName));
         }
 
-        System.out.println("Codificação concluída. " + chunks.size() + " QR Codes gerados em: " + outputDir);
+        System.out.println(Messages.ENCODE_DONE.formatted(chunks.size(), outputDir));
     }
 
     // ------------------------------------------------------------
@@ -84,7 +84,7 @@ public class QRCodeTool {
         List<Path> qrFiles = listQrFiles(dir);
 
         if (qrFiles.isEmpty()) {
-            System.err.println("Nenhum arquivo QR Code encontrado em: " + inputDir);
+            System.err.println(Messages.NO_QR_FOUND.formatted(inputDir));
             return;
         }
 
@@ -99,11 +99,11 @@ public class QRCodeTool {
         byte[] original = Compression.decompress(reassembled.compressed());
 
         if (!Checksum.verify(original, reassembled.storedChecksum())) {
-            throw new IOException("Checksum inválido! Dados corrompidos.");
+            throw new IOException(Messages.BAD_CHECKSUM);
         }
 
         Files.write(Paths.get(outputFile), original);
-        System.out.println("Decodificação concluída. Arquivo recuperado: " + outputFile);
+        System.out.println(Messages.DECODE_DONE.formatted(outputFile));
     }
 
     // ------------------------------------------------------------
@@ -112,7 +112,7 @@ public class QRCodeTool {
     public static void makePng(String inputDir, String outputDir) throws Exception {
         Path in = Paths.get(inputDir);
         if (!Files.isDirectory(in)) {
-            throw new IllegalArgumentException("Diretório de entrada não existe: " + inputDir);
+            throw new IllegalArgumentException(Messages.INPUT_DIR_NOT_FOUND.formatted(inputDir));
         }
 
         Path out = (outputDir == null || outputDir.isBlank()) ? in : Paths.get(outputDir);
@@ -122,18 +122,18 @@ public class QRCodeTool {
 
         List<Path> textFiles = listTextFiles(in);
         if (textFiles.isEmpty()) {
-            System.err.println("Nenhum arquivo " + Constants.TXT_PREFIX + "*.txt encontrado em: " + inputDir);
+            System.err.println(Messages.NO_TEXT_FILES.formatted(Constants.TXT_PREFIX, inputDir));
             return;
         }
 
         for (int i = 0; i < textFiles.size(); i++) {
             String base64 = Files.readString(textFiles.get(i), StandardCharsets.UTF_8);
-            String pngName = String.format("%s%0" + Constants.FILE_NAME_DIGITS + "d.png",
-                    Constants.QR_PREFIX, i + 1);
+            String pngName = ("%s%0" + Constants.FILE_NAME_DIGITS + "d.png")
+                    .formatted(Constants.QR_PREFIX, i + 1);
             QrCodeImage.writeFromBase64(base64, out.resolve(pngName));
         }
 
-        System.out.println("PNGs gerados: " + textFiles.size() + " em: " + out);
+        System.out.println(Messages.PNGS_GENERATED.formatted(textFiles.size(), out));
     }
 
     private static List<Path> listTextFiles(Path dir) throws IOException {

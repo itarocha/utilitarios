@@ -36,13 +36,13 @@ public final class QrCodeImage {
     public static void writeFromBase64(String base64, Path file) throws WriterException, IOException {
         String cleaned = base64.replaceAll("\\s+", "");
         if (cleaned.isEmpty()) {
-            throw new IllegalArgumentException("Conteúdo Base64 vazio.");
+            throw new IllegalArgumentException(Messages.EMPTY_BASE64);
         }
         byte[] payload;
         try {
             payload = Base64.getDecoder().decode(cleaned);
         } catch (IllegalArgumentException e) {
-            throw new IOException("Conteúdo não é Base64 válido.", e);
+            throw new IOException(Messages.INVALID_BASE64, e);
         }
         write(payload, file);
     }
@@ -101,7 +101,7 @@ public final class QrCodeImage {
         try {
             return Base64.getDecoder().decode(result.getText());
         } catch (IllegalArgumentException e) {
-            throw new IOException("Conteúdo do QR Code não é Base64 válido.", e);
+            throw new IOException(Messages.QR_NOT_BASE64, e);
         }
     }
 }

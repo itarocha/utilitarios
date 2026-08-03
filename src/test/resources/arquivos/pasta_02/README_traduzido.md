@@ -178,6 +178,7 @@ utilitarios/
     │   │   └── qr/
     │   │       ├── QRCodeTool.java                # Fachada + CLI
     │   │       ├── Constants.java                 # Constantes de nomes de arquivo
+    │   │       ├── Messages.java                  # Constantes de mensagens
     │   │       ├── Compression.java               # GZIP
     │   │       ├── Checksum.java                  # CRC32
     │   │       ├── ChunkCodec.java                # Formato/remontagem de chunks
@@ -255,6 +256,10 @@ Classe `final` com construtor privado, contendo apenas constantes `public static
 | `QR_PREFIX`        | `"qr_"`      | Prefixo dos arquivos de QR Code.                             |
 | `TXT_PREFIX`       | `"arquivo_"` | Prefixo dos arquivos texto com conteúdo Base64.              |
 | `FILE_NAME_DIGITS` | `3`          | Quantidade de dígitos do índice no nome (`qr_001`, `arquivo_001`, …). |
+
+### `Messages` — constantes de mensagens
+
+Classe `final` com construtor privado, contendo as mensagens de saída e de erro como constantes `public static final`. Mensagens com argumentos usam placeholders (`%s`, `%d`) e são formatadas na chamada via `String.formatted(...)`.
 
 ### `Compression` — compactação GZIP
 

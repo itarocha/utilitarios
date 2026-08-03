@@ -58,7 +58,7 @@ public final class ChunkCodec {
                 if (totalChunks == -1) {
                     totalChunks = total;
                 } else if (totalChunks != total) {
-                    throw new IOException("Inconsistência no número total de chunks: esperado " + totalChunks + ", encontrado " + total);
+                    throw new IOException(Messages.CHUNK_TOTAL_MISMATCH.formatted(totalChunks, total));
                 }
 
                 if (idx == 0) {
@@ -69,21 +69,21 @@ public final class ChunkCodec {
                 dis.readFully(data);
 
                 if (chunksMap.containsKey(idx)) {
-                    throw new IOException("Chunk duplicado: " + idx);
+                    throw new IOException(Messages.CHUNK_DUPLICATED.formatted(idx));
                 }
                 chunksMap.put(idx, data);
             }
         }
 
         if (chunksMap.size() != totalChunks) {
-            throw new IOException("Faltam chunks: esperado " + totalChunks + ", recebido " + chunksMap.size());
+            throw new IOException(Messages.CHUNK_MISSING.formatted(totalChunks, chunksMap.size()));
         }
 
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         for (int i = 0; i < totalChunks; i++) {
             byte[] chunk = chunksMap.get(i);
             if (chunk == null) {
-                throw new IOException("Chunk " + i + " não encontrado.");
+                throw new IOException(Messages.CHUNK_NOT_FOUND.formatted(i));
             }
             baos.write(chunk);
         }
