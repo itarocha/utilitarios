@@ -9,6 +9,8 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 public class QRCodeTool {
 
@@ -52,28 +54,62 @@ public class QRCodeTool {
     //  CODIFICAÇÃO
     // ------------------------------------------------------------
     public static void encode(String inputFile, String outputDir) throws Exception {
-        byte[] originalData = Files.readAllBytes(Paths.get(inputFile));
+        Path outPath = createOutputDir(outputDir);
 
-        if (originalData.length == 0) {
-            throw new IllegalArgumentException(Messages.EMPTY_INPUT_FILE.formatted(inputFile));
-        }
+        List<byte[]> chunks = readAndSplit(Paths.get(inputFile));
 
-        long checksum = Checksum.checksum(originalData);
-        byte[] compressed = Compression.compress(originalData);
-        List<byte[]> chunks = ChunkCodec.split(compressed, ChunkCodec.MAX_QR_BYTES, checksum);
+        IntStream.range(0, chunks.size())
+                .mapToObj(i -> new ChunkFile(chunks.get(i), outPath.resolve(fileName(i + 1))))
+                .forEach(unchecked(ChunkFile::write));
 
+        System.out.println(Messages.ENCODE_DONE.formatted(chunks.size(), outputDir));
+    }
+
+    private static Path createOutputDir(String outputDir) throws IOException {
         Path outPath = Paths.get(outputDir);
         if (!Files.exists(outPath)) {
             Files.createDirectories(outPath);
         }
+        return outPath;
+    }
 
-        for (int i = 0; i < chunks.size(); i++) {
-            String fileName = ("%s%0" + Constants.FILE_NAME_DIGITS + "d.png")
-                    .formatted(Constants.QR_PREFIX, i + 1);
-            QrCodeImage.write(chunks.get(i), outPath.resolve(fileName));
+    private static List<byte[]> readAndSplit(Path input) throws IOException {
+        byte[] data = Files.readAllBytes(input);
+        if (data.length == 0) {
+            throw new IllegalArgumentException(Messages.EMPTY_INPUT_FILE.formatted(input));
         }
+        return ChunkCodec.split(Compression.compress(data), ChunkCodec.MAX_QR_BYTES, Checksum.checksum(data));
+    }
 
-        System.out.println(Messages.ENCODE_DONE.formatted(chunks.size(), outputDir));
+    private static String fileName(int index) {
+        return ("%s%0" + Constants.FILE_NAME_DIGITS + "d.png")
+                .formatted(Constants.QR_PREFIX, index);
+    }
+
+    private record ChunkFile(byte[] payload, Path target) {
+        void write() throws Exception {
+            QrCodeImage.write(payload, target);
+        }
+    }
+
+    @FunctionalInterface
+    private interface ThrowingConsumer<T> {
+        void accept(T t) throws Exception;
+    }
+
+    private static <T> Consumer<T> unchecked(ThrowingConsumer<T> consumer) {
+        return t -> {
+            try {
+                consumer.accept(t);
+            } catch (Exception e) {
+                sneakyThrow(e);
+            }
+        };
+    }
+
+    @SuppressWarnings("unchecked")
+    private static <E extends Throwable> void sneakyThrow(Throwable throwable) throws E {
+        throw (E) throwable;
     }
 
     // ------------------------------------------------------------
