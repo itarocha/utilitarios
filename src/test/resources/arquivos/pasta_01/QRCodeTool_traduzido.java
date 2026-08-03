@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.IntStream;
+import java.util.stream.StreamSupport;
 
 public class QRCodeTool {
 
@@ -97,6 +99,11 @@ public class QRCodeTool {
         void accept(T t) throws Exception;
     }
 
+    @FunctionalInterface
+    private interface ThrowingFunction<T, R> {
+        R apply(T t) throws Exception;
+    }
+
     private static <T> Consumer<T> unchecked(ThrowingConsumer<T> consumer) {
         return t -> {
             try {
@@ -107,8 +114,18 @@ public class QRCodeTool {
         };
     }
 
+    private static <T, R> Function<T, R> unchecked(ThrowingFunction<T, R> function) {
+        return t -> {
+            try {
+                return function.apply(t);
+            } catch (Exception e) {
+                return sneakyThrow(e);
+            }
+        };
+    }
+
     @SuppressWarnings("unchecked")
-    private static <E extends Throwable> void sneakyThrow(Throwable throwable) throws E {
+    private static <E extends Throwable, R> R sneakyThrow(Throwable throwable) throws E {
         throw (E) throwable;
     }
 
@@ -116,30 +133,29 @@ public class QRCodeTool {
     //  DECODIFICAÇÃO
     // ------------------------------------------------------------
     public static void decode(String inputDir, String outputFile) throws Exception {
-        Path dir = Paths.get(inputDir);
-        List<Path> qrFiles = listQrFiles(dir);
-
+        List<Path> qrFiles = listQrFiles(Paths.get(inputDir));
         if (qrFiles.isEmpty()) {
             System.err.println(Messages.NO_QR_FOUND.formatted(inputDir));
             return;
         }
 
-        qrFiles.sort(Comparator.comparingInt(QRCodeTool::extractChunkNumber));
-
-        List<byte[]> payloads = new ArrayList<>(qrFiles.size());
-        for (Path qrFile : qrFiles) {
-            payloads.add(QrCodeImage.read(qrFile));
-        }
-
-        ChunkCodec.Reassembled reassembled = ChunkCodec.reassemble(payloads);
-        byte[] original = Compression.decompress(reassembled.compressed());
-
-        if (!Checksum.verify(original, reassembled.storedChecksum())) {
-            throw new IOException(Messages.BAD_CHECKSUM);
-        }
+        byte[] original = reassembleAndVerify(
+                qrFiles.stream()
+                        .sorted(Comparator.comparingInt(QRCodeTool::extractChunkNumber))
+                        .map(unchecked(QrCodeImage::read))
+                        .toList());
 
         Files.write(Paths.get(outputFile), original);
         System.out.println(Messages.DECODE_DONE.formatted(outputFile));
+    }
+
+    private static byte[] reassembleAndVerify(List<byte[]> payloads) throws IOException {
+        ChunkCodec.Reassembled reassembled = ChunkCodec.reassemble(payloads);
+        byte[] original = Compression.decompress(reassembled.compressed());
+        if (!Checksum.verify(original, reassembled.storedChecksum())) {
+            throw new IOException(Messages.BAD_CHECKSUM);
+        }
+        return original;
     }
 
     // ------------------------------------------------------------
@@ -184,13 +200,9 @@ public class QRCodeTool {
     }
 
     private static List<Path> listQrFiles(Path dir) throws IOException {
-        List<Path> qrFiles = new ArrayList<>();
         try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, Constants.QR_PREFIX + "*.png")) {
-            for (Path entry : stream) {
-                qrFiles.add(entry);
-            }
+            return StreamSupport.stream(stream.spliterator(), false).toList();
         }
-        return qrFiles;
     }
 
     private static int extractChunkNumber(Path file) {
