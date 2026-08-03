@@ -52,31 +52,32 @@ class QRCodeToolIntegrationTest {
         assertTrue(n >= minQr,
                 "Esperado >= " + minQr + " QR Codes em " + pasta + ", gerado: " + n);
 
-        // 3) Lê cada imagem e grava o conteúdo (Base64) em arquivo_K.txt
+        // 3) Lê cada imagem e grava o conteúdo (Base64) em arquivo_KKK.txt
         List<byte[]> payloads = new ArrayList<>(n);
         for (int k = 1; k <= n; k++) {
-            Path qrFile = pasta.resolve(String.format("qr_%03d.png", k));
+            Path qrFile = pasta.resolve(qrFileName(k));
             byte[] payload = QrCodeImage.read(qrFile);
             payloads.add(payload);
 
             String content = Base64.getEncoder().encodeToString(payload);
-            Path txtFile = pasta.resolve(String.format("arquivo_%02d.txt", k));
+            Path txtFile = pasta.resolve(txtFileName(k));
             Files.writeString(txtFile, content, StandardCharsets.UTF_8);
 
             assertTrue(Files.exists(txtFile), "Arquivo texto não gerado: " + txtFile);
             assertEquals(content, Files.readString(txtFile, StandardCharsets.UTF_8));
             assertArrayEquals(payload, Base64.getDecoder().decode(content),
-                    "Conteúdo do arquivo_%02d.txt não é o Base64 do qr_%03d.png".formatted(k, k));
+                    "Conteúdo do %s não é o Base64 do %s".formatted(txtFileName(k), qrFileName(k)));
         }
 
         // 4) Regenera os PNGs a partir dos arquivos texto (make_png)
         Path makePngOut = pasta.resolve("make_png");
         QRCodeTool.makePng(pasta.toString(), makePngOut.toString());
         for (int k = 1; k <= n; k++) {
-            Path pngFile = makePngOut.resolve(String.format("qr_%03d.png", k));
+            Path pngFile = makePngOut.resolve(qrFileName(k));
             assertTrue(Files.exists(pngFile), "PNG não gerado: " + pngFile);
             assertArrayEquals(payloads.get(k - 1), QrCodeImage.read(pngFile),
-                    "make_png/qr_%03d.png deveria decodificar para o payload de qr_%03d.png".formatted(k, k));
+                    "make_png/%s deveria decodificar para o payload de %s"
+                            .formatted(qrFileName(k), qrFileName(k)));
         }
 
         // 5) Reconstrói o arquivo a partir dos qr_*.png
@@ -148,12 +149,20 @@ class QRCodeToolIntegrationTest {
 
     private static int countQrFiles(Path dir) throws IOException {
         int count = 0;
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "qr_*.png")) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, Constants.QR_PREFIX + "*.png")) {
             for (Path ignored : stream) {
                 count++;
             }
         }
         return count;
+    }
+
+    private static String qrFileName(int index) {
+        return String.format("%s%0" + Constants.FILE_NAME_DIGITS + "d.png", Constants.QR_PREFIX, index);
+    }
+
+    private static String txtFileName(int index) {
+        return String.format("%s%0" + Constants.FILE_NAME_DIGITS + "d.txt", Constants.TXT_PREFIX, index);
     }
 
     private static Path traduzidoPath(Path original) {

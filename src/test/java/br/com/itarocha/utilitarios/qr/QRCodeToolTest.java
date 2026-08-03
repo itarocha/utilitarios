@@ -125,9 +125,9 @@ class QRCodeToolTest {
         byte[] payload2 = randomBytes(400);
         Path textDir = tempDir.resolve("textos");
         Files.createDirectories(textDir);
-        Files.writeString(textDir.resolve("arquivo_01.txt"),
+        Files.writeString(textDir.resolve("arquivo_001.txt"),
                 Base64.getEncoder().encodeToString(payload1), StandardCharsets.UTF_8);
-        Files.writeString(textDir.resolve("arquivo_02.txt"),
+        Files.writeString(textDir.resolve("arquivo_002.txt"),
                 Base64.getEncoder().encodeToString(payload2), StandardCharsets.UTF_8);
 
         Path outDir = tempDir.resolve("pngs");
@@ -145,7 +145,7 @@ class QRCodeToolTest {
     void makePngInvalidBase64Throws() throws Exception {
         Path textDir = tempDir.resolve("invalido");
         Files.createDirectories(textDir);
-        Files.writeString(textDir.resolve("arquivo_01.txt"), "isto não é base64 válido!@@@");
+        Files.writeString(textDir.resolve("arquivo_001.txt"), "isto não é base64 válido!@@@");
 
         Path outDir = tempDir.resolve("pngs_invalidos");
         assertThrows(IOException.class,
@@ -157,7 +157,7 @@ class QRCodeToolTest {
         byte[] payload = randomBytes(300);
         Path textDir = tempDir.resolve("mesma_pasta");
         Files.createDirectories(textDir);
-        Files.writeString(textDir.resolve("arquivo_01.txt"),
+        Files.writeString(textDir.resolve("arquivo_001.txt"),
                 Base64.getEncoder().encodeToString(payload), StandardCharsets.UTF_8);
 
         QRCodeTool.makePng(textDir.toString(), null);

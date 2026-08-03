@@ -84,7 +84,7 @@ Arquivo de saída
 ### Regenerar PNGs a partir de textos Base64 (-make_png)
 
 ```
-Diretório de entrada (arquivo_01.txt … arquivo_nn.txt)
+Diretório de entrada (arquivo_001.txt … arquivo_nnn.txt)
       │
       ▼
 Listar e ordenar arquivo_*.txt
@@ -177,6 +177,7 @@ utilitarios/
     │   │   ├── UtilitariosApplication.java        # Bootstrap Spring Boot
     │   │   └── qr/
     │   │       ├── QRCodeTool.java                # Fachada + CLI
+    │   │       ├── Constants.java                 # Constantes de nomes de arquivo
     │   │       ├── Compression.java               # GZIP
     │   │       ├── Checksum.java                  # CRC32
     │   │       ├── ChunkCodec.java                # Formato/remontagem de chunks
@@ -207,14 +208,7 @@ Todas as classes do pacote `br.com.itarocha.utilitarios.qr`, exceto a fachada, s
 
 ### `QRCodeTool` — fachada e ponto de entrada (CLI)
 
-Classe de orquestração. Recebe as etapas realizadas pelas demais classes.
-
-**Constantes**
-
-| Constante    | Valor      | Descrição                       |
-|--------------|------------|---------------------------------|
-| `QR_PREFIX`  | `"qr_"`    | Prefixo dos arquivos gerados.   |
-| `QR_SUFFIX`  | `".png"`   | Sufixo dos arquivos gerados.    |
+Classe de orquestração. Recebe as etapas realizadas pelas demais classes. Os nomes de arquivos são montados a partir das constantes de `Constants`.
 
 **Métodos**
 
@@ -251,6 +245,16 @@ Classe de orquestração. Recebe as etapas realizadas pelas demais classes.
 - **`listTextFiles(Path dir)`** *(privado)* — lista e ordena os arquivos do diretório que casam com `arquivo_*.txt`.
 
 - **`extractChunkNumber(Path file)`** *(privado)* — extrai o número do nome (`qr_001.png` → `1`).
+
+### `Constants` — constantes de nomenclatura
+
+Classe `final` com construtor privado, contendo apenas constantes `public static final` usadas na montagem dos nomes de arquivos.
+
+| Constante          | Valor        | Descrição                                                    |
+|--------------------|--------------|--------------------------------------------------------------|
+| `QR_PREFIX`        | `"qr_"`      | Prefixo dos arquivos de QR Code.                             |
+| `TXT_PREFIX`       | `"arquivo_"` | Prefixo dos arquivos texto com conteúdo Base64.              |
+| `FILE_NAME_DIGITS` | `3`          | Quantidade de dígitos do índice no nome (`qr_001`, `arquivo_001`, …). |
 
 ### `Compression` — compactação GZIP
 
@@ -396,7 +400,7 @@ As classes de teste do pacote `qr` cobrem cada etapa isoladamente (testes unitá
 | Classe de teste          | Cobertura                                                                                                                                                                                                                          |
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | `QRCodeToolTest`         | Fim-a-fim via fachada: round-trips (pequeno, múltiplos chunks, binário), arquivo vazio lança exceção, chunk faltante e QR corrompido falham; `makePng` converte todos os `arquivo_*.txt` de um diretório em `qr_%03d.png` (saída omitida usa a mesma pasta), Base64 inválido lança `IOException` e diretório sem `arquivo_*.txt` não gera erro. |
-| `QRCodeToolIntegrationTest` | Cenários completos por pasta: gera os QR Codes de um arquivo original, lê o conteúdo em `arquivo_N.txt`, regenera PNGs via `-make_png` (subpasta `make_png/`) e reconstrói o `<original>_traduzido.<ext>`, comparando o **MD5** com o original.           |
+| `QRCodeToolIntegrationTest` | Cenários completos por pasta: gera os QR Codes de um arquivo original, lê o conteúdo em `arquivo_NNN.txt`, regenera PNGs via `-make_png` (subpasta `make_png/`) e reconstrói o `<original>_traduzido.<ext>`, comparando o **MD5** com o original.           |
 | `CompressionTest`        | Round-trip compress/decompress (pequeno, grande, vazio); dados inválidos lançam `IOException`.                                                                                                                                     |
 | `ChecksumTest`           | Vetor padrão CRC32 (`"123456789"` → `0xCBF43926`); `verify` verdadeiro/falso; checksum de dados vazios.                                                                                                                            |
 | `ChunkCodecTest`         | `split` gera quantidade/tamanhos esperados (cabeçalho 8/4 bytes); round-trip split→reassemble; chunk faltante/duplicado/inconsistente lançam `IOException`.                                                                        |
@@ -412,7 +416,7 @@ O `QRCodeToolIntegrationTest` usa `@ParameterizedTest` + `@MethodSource` para **
 |------------------------------------------|---------------------------------------------------------------|
 | arquivo **original**                     | Único arquivo versionado na pasta (o ponto de partida).       |
 | `qr_001.png … qr_00n.png`                | Gerados pelo encoder a partir do original.                    |
-| `arquivo_01.txt … arquivo_n.txt`         | Conteúdo Base64 lido de cada QR (simula a leitura por celular). |
+| `arquivo_001.txt … arquivo_nnn.txt`     | Conteúdo Base64 lido de cada QR (simula a leitura por celular). |
 | `make_png/qr_001.png … qr_00n.png`       | Regenerados via `-make_png` a partir de cada arquivo texto.   |
 | `<nome>_traduzido.<ext>`                 | Arquivo reconstruído via `decode`, com **MD5 igual ao original**. |
 
@@ -420,7 +424,7 @@ O `QRCodeToolIntegrationTest` usa `@ParameterizedTest` + `@MethodSource` para **
 
 1. Limpa os artefatos gerados anteriormente (`qr_*.png`, `arquivo_*.txt`, `arquivo_png_*.png`, `*_traduzido.*` e a subpasta `make_png/`), restando apenas o original.
 2. `QRCodeTool.encode(original, pasta)` → gera os `qr_*.png`; verifica que a quantidade atende ao mínimo esperado do cenário.
-3. Para cada `k`, lê `qr_00k.png` (`QrCodeImage.read`) e grava `arquivo_0k.txt` com `Base64.encodeToString(payload)`; valida que o conteúdo é Base64 válido e igual ao do payload.
+3. Para cada `k`, lê `qr_00k.png` (`QrCodeImage.read`) e grava `arquivo_00k.txt` com `Base64.encodeToString(payload)`; valida que o conteúdo é Base64 válido e igual ao do payload.
 4. `QRCodeTool.makePng(pasta, pasta/make_png)` → gera `make_png/qr_%03d.png`; valida que cada PNG decodifica para o mesmo payload de `qr_00k.png`.
 5. `QRCodeTool.decode(pasta, <nome>_traduzido.<ext>)`; valida que o conteúdo é **idêntico** ao original.
 6. Compara o **MD5** do original com o do arquivo traduzido.

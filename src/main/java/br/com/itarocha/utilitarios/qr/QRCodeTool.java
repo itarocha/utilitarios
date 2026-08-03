@@ -12,9 +12,6 @@ import java.util.List;
 
 public class QRCodeTool {
 
-    public static final String QR_PREFIX = "qr_";
-    public static final String QR_SUFFIX = ".png";
-
     public static void main(String[] args) throws Exception {
         if (args.length < 2) {
             usage();
@@ -71,7 +68,8 @@ public class QRCodeTool {
         }
 
         for (int i = 0; i < chunks.size(); i++) {
-            String fileName = String.format("%s%03d%s", QR_PREFIX, i + 1, QR_SUFFIX);
+            String fileName = String.format("%s%0" + Constants.FILE_NAME_DIGITS + "d.png",
+                    Constants.QR_PREFIX, i + 1);
             QrCodeImage.write(chunks.get(i), outPath.resolve(fileName));
         }
 
@@ -124,13 +122,14 @@ public class QRCodeTool {
 
         List<Path> textFiles = listTextFiles(in);
         if (textFiles.isEmpty()) {
-            System.err.println("Nenhum arquivo arquivo_*.txt encontrado em: " + inputDir);
+            System.err.println("Nenhum arquivo " + Constants.TXT_PREFIX + "*.txt encontrado em: " + inputDir);
             return;
         }
 
         for (int i = 0; i < textFiles.size(); i++) {
             String base64 = Files.readString(textFiles.get(i), StandardCharsets.UTF_8);
-            String pngName = String.format("%s%03d%s", QR_PREFIX, i + 1, QR_SUFFIX);
+            String pngName = String.format("%s%0" + Constants.FILE_NAME_DIGITS + "d.png",
+                    Constants.QR_PREFIX, i + 1);
             QrCodeImage.writeFromBase64(base64, out.resolve(pngName));
         }
 
@@ -139,7 +138,7 @@ public class QRCodeTool {
 
     private static List<Path> listTextFiles(Path dir) throws IOException {
         List<Path> textFiles = new ArrayList<>();
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "arquivo_*.txt")) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, Constants.TXT_PREFIX + "*.txt")) {
             for (Path entry : stream) {
                 textFiles.add(entry);
             }
@@ -150,7 +149,7 @@ public class QRCodeTool {
 
     private static List<Path> listQrFiles(Path dir) throws IOException {
         List<Path> qrFiles = new ArrayList<>();
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, QR_PREFIX + "*" + QR_SUFFIX)) {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, Constants.QR_PREFIX + "*.png")) {
             for (Path entry : stream) {
                 qrFiles.add(entry);
             }
@@ -160,7 +159,7 @@ public class QRCodeTool {
 
     private static int extractChunkNumber(Path file) {
         String name = file.getFileName().toString();
-        String num = name.substring(QR_PREFIX.length(), name.length() - QR_SUFFIX.length());
+        String num = name.substring(Constants.QR_PREFIX.length(), name.length() - ".png".length());
         return Integer.parseInt(num);
     }
 }
