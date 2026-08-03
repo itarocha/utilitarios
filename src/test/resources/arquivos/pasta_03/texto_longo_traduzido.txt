@@ -1,0 +1,159 @@
+chunk checksum registrou 3142 confirmou código avaliou 2511 código confirmou executou 3169 reconstruir validar cenário 3604 revisou checksum enviar 7171 reconstruir registrou ordem 336 payload compactar decodificar 4399 binário revisou parcial 2385 chunk rápido código 8075 atualizou teste conteúdo 7138
+
+avaliou lento parcial 5240 confirmou transportar rápido 9843 relatou chunk comparou 7446 teste integridade revisou 2309 binário registrou executou 7364 cenário pasta checksum 3419 pasta etapa rápido 4250 lento legível chunk 4689 inválido reconstruir conteúdo 8142 teste dados conteúdo 3961
+
+imagem comparou lento 2247 validar parcial confirmou 7696 correto criar executou 7051 ler código compactar 8259 comparou binário relatou 4256 arquivo executou completo 4216 atualizou rápido imagem 6240 etapa verificou avaliou 2344 verificou ordem dados 8232 texto integridade ler 9617
+
+comparou tamanho ler 5987 tamanho executou conteúdo 5692 pasta checksum imagem 2794 registrou teste transportar 3795 arquivo validar parcial 9850 teste cenário comparou 736 binário pequeno confirmou 1618 etapa criar reconstruir 5188 transportar completo imagem 4506 conteúdo ordem comparou 1368
+
+operacao etapa lento 686 criar grande pequeno 2640 resultado teste cenário 8565 operacao código avaliou 3495 checksum ler correto 8314 verificou arquivo revisou 2498 chunk parcial registrou 3625 chunk parcial tamanho 3962 rápido mediu dados 9800 checksum parcial texto 5847
+
+parcial ler grande 6614 legível decodificar validar 847 ordem criar confirmou 5119 imagem binário operacao 9187 correto pequeno gerar 4842 etapa parcial reconstruir 2530 gerar transportar lento 2660 texto imagem imagem 9983 correto checksum ler 5795 reconstruir codificar lento 8142
+
+binário tamanho tamanho 7214 ler rápido cenário 4941 reconstruir gerar grande 2830 cenário revisou reconstruir 180 dados registrou compactar 1569 operacao lento validar 5752 chunk texto gerar 3996 avaliou dados etapa 7317 imagem conteúdo inválido 988 teste gerar transportar 2347
+
+cenário atualizou lento 8842 inválido imagem compactar 9037 imagem chunk decodificar 6205 gerar enviar arquivo 355 codificar etapa verificou 4544 decodificar pequeno relatou 7052 arquivo integridade registrou 4858 atualizou ler transportar 1651 imagem inválido correto 7820 correto payload compactar 2549
+
+binário imagem criar 8723 enviar cenário chunk 4626 pequeno código dados 6243 completo arquivo atualizou 8030 completo chunk compactar 7654 tamanho cenário legível 3276 mediu correto verificou 7900 imagem enviar conteúdo 660 operacao processo pasta 2152 codificar criar tamanho 2277
+
+imagem decodificar resultado 9458 etapa executou gerar 3611 verificou revisou confirmou 7119 enviar cenário enviar 2449 imagem integridade compactar 977 executou processo parcial 4317 código resultado enviar 1639 dados grande etapa 8357 criar conteúdo binário 5669 confirmou código ordem 932
+
+etapa comparou parcial 3957 processo revisou criar 1744 lento compactar legível 5874 reconstruir registrou rápido 3812 avaliou checksum tamanho 1621 chunk verificou reconstruir 2153 executou pasta ordem 1811 gerar cenário confirmou 2421 integridade revisou processo 526 mediu legível rápido 6344
+
+conteúdo conteúdo resultado 9470 processo completo validar 7381 etapa payload pequeno 6318 registrou transportar texto 5463 correto tamanho validar 7937 completo imagem enviar 7435 correto completo operacao 9343 revisou gerar decodificar 4202 texto criar compactar 8822 grande imagem etapa 3503
+
+parcial teste checksum 284 texto relatou decodificar 1949 confirmou reconstruir validar 9186 correto relatou texto 5234 arquivo enviar arquivo 3134 gerar gerar código 7267 conteúdo pasta avaliou 6807 comparou decodificar resultado 8509 compactar transportar gerar 5812 integridade gerar etapa 8635
+
+mediu revisou pasta 1599 verificou mediu parcial 5094 completo imagem dados 4396 checksum tamanho verificou 9176 completo checksum payload 3569 codificar confirmou decodificar 2732 gerar transportar atualizou 4268 compactar código integridade 5103 codificar codificar resultado 7333 ordem codificar ler 9529
+
+cenário completo reconstruir 7925 código operacao pequeno 6056 transportar criar verificou 8127 decodificar comparou codificar 4504 binário criar completo 2380 verificou criar relatou 8627 reconstruir dados rápido 2574 parcial parcial enviar 5947 lento pequeno atualizou 5817 revisou imagem codificar 2524
+
+revisou arquivo conteúdo 2874 relatou parcial gerar 9918 parcial mediu transportar 8157 completo teste texto 2626 integridade correto enviar 6622 inválido pequeno parcial 6656 checksum decodificar teste 4070 inválido arquivo ordem 9248 gerar legível binário 1786 cenário atualizou processo 7511
+
+revisou compactar mediu 9242 ler teste executou 3187 enviar dados parcial 832 resultado payload parcial 798 mediu rápido imagem 7619 inválido integridade arquivo 7305 mediu texto parcial 9398 inválido gerar inválido 6700 código avaliou revisou 3234 conteúdo parcial texto 739
+
+ler comparou enviar 7413 etapa executou registrou 6540 inválido processo reconstruir 7527 decodificar resultado resultado 9714 relatou binário decodificar 8860 processo comparou processo 318 gerar verificou resultado 3002 dados executou transportar 548 completo comparou teste 3434 legível operacao ler 6891
+
+ler imagem payload 8282 etapa compactar compactar 2642 executou enviar pasta 9363 validar checksum arquivo 7898 imagem avaliou resultado 131 ordem verificou dados 1212 legível mediu transportar 1158 executou ordem validar 6451 etapa comparou pasta 3245 conteúdo gerar executou 549
+
+correto integridade texto 7487 registrou pequeno compactar 7442 relatou ordem relatou 2973 reconstruir dados tamanho 8674 comparou verificou conteúdo 1369 processo executou parcial 8495 arquivo inválido integridade 6877 dados mediu imagem 4797 binário mediu atualizou 206 codificar atualizou binário 7594
+
+dados verificou avaliou 3137 chunk enviar executou 7702 texto teste payload 8914 verificou ordem criar 9605 reconstruir parcial pequeno 4050 binário enviar comparou 6649 payload codificar reconstruir 682 pequeno binário enviar 1256 validar transportar lento 1491 integridade atualizou avaliou 2982
+
+revisou conteúdo resultado 9465 legível conteúdo verificou 111 legível processo verificou 395 integridade pequeno teste 5750 decodificar completo atualizou 6804 decodificar ordem texto 5686 compactar transportar conteúdo 2631 validar correto tamanho 4888 registrou resultado checksum 6938 imagem resultado imagem 1794
+
+conteúdo cenário correto 5047 ler validar imagem 7492 imagem operacao criar 875 parcial etapa validar 7856 integridade imagem texto 2101 ordem integridade comparou 5393 criar imagem operacao 439 confirmou arquivo etapa 5485 ler checksum revisou 7141 criar parcial reconstruir 7015
+
+gerar lento compactar 2827 atualizou lento mediu 6384 dados imagem executou 8539 operacao texto enviar 1680 grande arquivo gerar 4135 código checksum rápido 9829 inválido etapa relatou 4796 criar criar revisou 3220 atualizou chunk validar 9114 executou executou dados 2366
+
+codificar completo inválido 7348 checksum grande teste 4287 validar comparou parcial 4744 confirmou código parcial 2107 operacao dados codificar 1192 texto transportar pequeno 3676 arquivo registrou decodificar 5772 inválido dados imagem 9804 processo grande transportar 1394 registrou grande completo 7753
+
+comparou completo correto 6631 validar lento conteúdo 6875 processo pasta chunk 4953 comparou correto operacao 9047 validar cenário compactar 1181 rápido confirmou verificou 312 relatou pequeno rápido 6942 tamanho completo revisou 8563 correto arquivo codificar 3599 executou inválido relatou 8354
+
+codificar ordem verificou 3480 transportar avaliou relatou 6587 completo resultado registrou 8619 texto inválido conteúdo 1283 payload binário comparou 7290 criar lento imagem 4762 resultado payload pasta 6238 registrou checksum executou 5623 mediu chunk pasta 818 grande decodificar atualizou 2507
+
+código atualizou confirmou 4340 checksum tamanho lento 587 operacao decodificar pasta 9497 correto legível parcial 5856 completo codificar enviar 4356 pasta dados validar 248 enviar codificar completo 4000 pasta texto legível 3166 verificou pequeno codificar 8974 parcial etapa decodificar 2064
+
+parcial tamanho integridade 6633 gerar binário checksum 1138 relatou conteúdo imagem 4281 texto transportar operacao 9979 validar legível ler 4927 executou relatou binário 2875 lento resultado mediu 3341 ordem chunk legível 8746 completo executou grande 4510 correto compactar grande 9152
+
+ler decodificar resultado 3519 parcial cenário atualizou 4896 rápido parcial integridade 3434 correto conteúdo confirmou 924 atualizou operacao completo 8397 conteúdo criar atualizou 5538 payload imagem validar 7058 decodificar teste gerar 5097 revisou dados avaliou 3531 validar teste binário 426
+
+reconstruir legível resultado 3533 criar criar codificar 3093 ler processo reconstruir 4933 imagem ler executou 9609 registrou binário comparou 7383 codificar checksum correto 3915 ler criar resultado 4596 relatou operacao etapa 3117 compactar pasta codificar 601 avaliou pequeno cenário 8725
+
+enviar ler payload 2782 payload grande relatou 6385 rápido código texto 4738 teste código grande 5412 validar correto pasta 741 reconstruir cenário imagem 7765 operacao registrou chunk 838 decodificar gerar integridade 1282 registrou payload operacao 1713 operacao confirmou verificou 5762
+
+chunk operacao tamanho 520 mediu tamanho reconstruir 5475 etapa checksum pasta 4846 correto chunk rápido 6958 legível cenário inválido 2871 texto validar arquivo 7760 dados etapa parcial 2554 relatou integridade compactar 846 grande compactar confirmou 5653 codificar comparou teste 9718
+
+verificou processo binário 5647 processo conteúdo lento 119 texto criar tamanho 8591 revisou completo processo 4967 correto compactar chunk 8537 ler gerar tamanho 6877 verificou código grande 2684 transportar gerar transportar 7900 comparou pasta registrou 2161 completo arquivo parcial 9567
+
+chunk verificou texto 8684 processo mediu confirmou 194 ler completo código 7761 verificou executou dados 7354 payload avaliou etapa 4918 texto avaliou resultado 1089 completo relatou verificou 4564 processo transportar avaliou 5934 avaliou grande confirmou 7482 binário dados grande 2193
+
+pequeno comparou mediu 3837 confirmou chunk atualizou 3290 grande correto pasta 5710 cenário pequeno legível 709 legível inválido lento 6512 conteúdo transportar ordem 8117 ler transportar codificar 8681 teste comparou resultado 1690 código ler decodificar 7585 decodificar legível parcial 8986
+
+payload transportar enviar 9216 texto pequeno resultado 767 cenário imagem comparou 5578 transportar ordem payload 3037 tamanho reconstruir cenário 9253 inválido texto reconstruir 2994 conteúdo executou comparou 3020 chunk processo tamanho 9306 etapa resultado imagem 5248 chunk binário integridade 1906
+
+rápido codificar lento 1066 dados pequeno dados 568 registrou tamanho transportar 5682 texto enviar etapa 8807 confirmou criar checksum 931 transportar dados pasta 822 binário compactar pequeno 1183 cenário comparou decodificar 6467 pequeno conteúdo texto 9180 pequeno completo arquivo 9030
+
+gerar imagem rápido 3711 resultado criar tamanho 894 reconstruir binário codificar 1628 validar chunk texto 6176 registrou operacao operacao 5053 compactar pequeno confirmou 8348 reconstruir atualizou avaliou 5766 cenário codificar binário 1886 legível relatou transportar 6016 cenário gerar legível 9579
+
+resultado payload revisou 9546 avaliou enviar dados 4241 gerar operacao executou 7997 legível verificou imagem 3895 payload processo executou 814 checksum legível compactar 5298 integridade rápido tamanho 3813 enviar lento processo 3342 reconstruir registrou texto 8384 transportar transportar payload 9985
+
+cenário texto revisou 1468 cenário resultado payload 9778 imagem compactar completo 6333 ordem verificou correto 5066 reconstruir transportar pequeno 1340 chunk criar arquivo 9211 operacao ordem cenário 2123 operacao texto processo 3644 correto compactar lento 4166 executou arquivo transportar 7930
+
+criar correto lento 8174 payload dados cenário 3944 gerar chunk processo 2922 ler registrou código 2648 correto conteúdo registrou 5490 operacao legível etapa 8754 código binário chunk 9201 mediu compactar compactar 4980 checksum conteúdo cenário 1380 validar pasta processo 2437
+
+integridade payload checksum 4426 confirmou imagem atualizou 8614 revisou operacao processo 6259 compactar gerar integridade 6042 decodificar legível teste 5743 completo reconstruir checksum 9678 atualizou grande correto 5264 processo processo correto 1657 legível checksum confirmou 7285 registrou conteúdo binário 4046
+
+criar ordem integridade 338 pasta ordem validar 4591 comparou arquivo revisou 2598 reconstruir arquivo registrou 1448 gerar texto gerar 6584 conteúdo binário avaliou 5585 lento correto enviar 3256 inválido inválido integridade 2860 confirmou correto rápido 1967 comparou relatou arquivo 1474
+
+lento registrou binário 7133 ordem inválido etapa 9757 reconstruir código texto 7144 pequeno decodificar transportar 4974 executou ler código 8308 tamanho integridade ler 1278 texto integridade chunk 482 ordem pasta tamanho 6275 cenário avaliou arquivo 8329 revisou correto operacao 6147
+
+pequeno binário ler 9992 binário codificar tamanho 2108 validar registrou ler 5126 tamanho atualizou tamanho 6366 codificar gerar executou 5584 inválido parcial tamanho 1866 checksum legível pequeno 8534 mediu processo binário 6880 tamanho lento etapa 986 mediu checksum dados 9581
+
+grande pequeno registrou 8404 pasta resultado completo 433 tamanho pequeno ordem 3678 código compactar rápido 7928 enviar legível compactar 4478 comparou grande inválido 8377 reconstruir etapa comparou 3577 payload revisou codificar 9743 binário processo integridade 8758 ordem gerar correto 2368
+
+payload ordem mediu 8059 conteúdo executou operacao 7913 payload decodificar checksum 959 validar inválido etapa 3764 avaliou binário etapa 6210 binário executou teste 1730 texto código conteúdo 1694 legível chunk comparou 3975 lento atualizou compactar 8488 criar avaliou lento 4901
+
+confirmou teste mediu 2073 rápido parcial comparou 7158 inválido verificou texto 3210 processo registrou pasta 1940 código teste decodificar 5945 revisou criar teste 3568 payload ordem lento 586 arquivo legível registrou 9311 arquivo reconstruir operacao 5190 avaliou ordem arquivo 2343
+
+integridade teste reconstruir 3818 payload inválido código 596 tamanho rápido completo 6089 payload enviar mediu 6849 resultado imagem texto 6179 avaliou decodificar tamanho 2490 arquivo avaliou avaliou 7566 rápido lento reconstruir 2544 executou dados payload 5465 payload payload comparou 4088
+
+relatou gerar criar 9005 etapa revisou reconstruir 5540 validar processo arquivo 9104 compactar relatou enviar 5021 codificar codificar texto 2488 comparou criar transportar 2865 teste checksum checksum 6678 executou avaliou payload 794 operacao lento enviar 6529 operacao avaliou lento 9804
+
+verificou verificou chunk 7144 pasta enviar gerar 9310 lento parcial pequeno 5259 checksum inválido registrou 2282 completo decodificar criar 4998 gerar binário comparou 2927 transportar executou pequeno 153 grande checksum grande 6583 operacao relatou revisou 7933 registrou teste imagem 3792
+
+criar gerar binário 9658 gerar criar mediu 6942 operacao binário codificar 8379 dados mediu confirmou 2187 comparou validar pasta 2585 pequeno pasta executou 8901 atualizou rápido pequeno 3807 inválido completo compactar 1742 legível conteúdo checksum 6829 arquivo binário reconstruir 9077
+
+relatou ler atualizou 5884 processo binário teste 5594 arquivo processo registrou 8493 decodificar rápido dados 4819 checksum imagem imagem 1906 tamanho inválido cenário 9693 dados imagem registrou 6905 conteúdo binário decodificar 4538 conteúdo cenário completo 6394 reconstruir processo lento 8165
+
+texto transportar texto 9709 resultado confirmou compactar 1363 imagem mediu resultado 2461 codificar confirmou comparou 4538 grande atualizou texto 8000 revisou correto teste 9940 comparou checksum criar 3576 parcial revisou imagem 1726 chunk mediu criar 6651 texto tamanho avaliou 4964
+
+compactar integridade imagem 1104 completo avaliou rápido 7360 gerar correto parcial 5129 transportar rápido checksum 1893 processo arquivo imagem 245 compactar revisou parcial 3769 gerar registrou texto 3917 ler reconstruir código 4149 compactar avaliou inválido 4937 teste binário teste 9170
+
+rápido cenário avaliou 3039 gerar gerar binário 3707 checksum pequeno completo 2793 cenário completo binário 4345 validar imagem relatou 1755 pasta operacao lento 8784 integridade revisou validar 1240 pasta rápido transportar 7122 processo mediu rápido 1809 comparou dados checksum 1176
+
+ordem dados lento 2902 resultado reconstruir validar 5975 codificar lento enviar 3558 registrou rápido validar 6891 transportar texto legível 7392 rápido chunk grande 4368 arquivo atualizou operacao 7136 completo rápido comparou 5413 texto comparou arquivo 2716 compactar legível decodificar 9839
+
+cenário completo pequeno 6044 grande ler dados 6323 imagem mediu atualizou 8134 tamanho parcial criar 5579 binário completo reconstruir 1677 cenário payload etapa 5525 rápido revisou conteúdo 2341 grande comparou checksum 3107 etapa gerar processo 8877 teste imagem relatou 6373
+
+arquivo processo transportar 5727 relatou binário arquivo 4760 relatou imagem executou 2629 inválido executou etapa 1115 compactar relatou arquivo 183 completo conteúdo inválido 1560 grande chunk checksum 2985 pequeno compactar comparou 7137 decodificar decodificar imagem 1549 pequeno pequeno avaliou 5627
+
+arquivo inválido integridade 9870 grande etapa compactar 3377 parcial imagem transportar 1774 processo grande tamanho 4616 código checksum imagem 7921 resultado teste chunk 544 cenário dados relatou 4701 mediu ordem compactar 8261 comparou texto código 2321 legível cenário enviar 996
+
+conteúdo ordem operacao 8760 ordem ler relatou 5791 revisou parcial avaliou 6583 relatou executou cenário 2982 cenário tamanho integridade 7002 binário registrou resultado 7338 avaliou imagem relatou 9171 relatou tamanho conteúdo 6509 cenário comparou atualizou 250 decodificar binário conteúdo 3552
+
+legível avaliou compactar 9614 avaliou operacao conteúdo 2959 compactar imagem código 1735 etapa criar código 1246 texto resultado relatou 6757 inválido codificar reconstruir 9311 integridade ordem cenário 2634 completo rápido revisou 6520 integridade legível inválido 5614 codificar relatou operacao 3543
+
+imagem registrou criar 9032 payload gerar legível 9184 rápido ler criar 7940 inválido confirmou revisou 8287 legível imagem reconstruir 8280 executou operacao arquivo 8599 pasta ler parcial 9810 confirmou checksum checksum 5603 compactar compactar mediu 9136 ler pequeno grande 8172
+
+reconstruir conteúdo comparou 4945 rápido pasta integridade 419 arquivo payload registrou 343 ler avaliou grande 8227 arquivo dados binário 342 pequeno mediu mediu 3810 código teste transportar 9025 parcial relatou revisou 9302 binário código enviar 6494 integridade decodificar decodificar 1640
+
+texto processo texto 2954 conteúdo operacao ordem 5315 chunk rápido processo 6535 avaliou integridade transportar 7711 pequeno processo atualizou 6234 confirmou texto validar 2311 reconstruir arquivo reconstruir 4883 pequeno payload etapa 6407 teste reconstruir imagem 7201 payload resultado reconstruir 9111
+
+registrou texto codificar 9982 gerar decodificar chunk 5919 rápido correto etapa 9230 verificou teste texto 7600 ler reconstruir operacao 7261 dados compactar ler 2026 tamanho enviar comparou 4959 resultado confirmou imagem 7589 imagem código decodificar 7229 checksum avaliou payload 5302
+
+comparou processo operacao 8869 comparou executou dados 6116 imagem resultado grande 1014 gerar dados ler 9482 gerar correto correto 7374 teste processo reconstruir 6225 completo revisou executou 296 teste payload revisou 9201 validar binário processo 920 teste executou decodificar 7906
+
+payload parcial parcial 4100 arquivo mediu checksum 4009 pasta comparou registrou 7550 etapa pasta grande 3526 inválido conteúdo pequeno 3906 teste gerar confirmou 1698 validar tamanho completo 701 inválido texto mediu 2300 etapa legível transportar 5036 resultado reconstruir texto 637
+
+processo dados verificou 7541 lento atualizou texto 114 revisou confirmou cenário 5875 legível tamanho pequeno 9694 avaliou completo verificou 7481 arquivo parcial lento 6546 dados binário processo 7465 ordem conteúdo grande 4104 etapa gerar reconstruir 6855 lento legível resultado 9413
+
+codificar chunk grande 6486 texto confirmou transportar 984 relatou cenário pequeno 8922 lento mediu registrou 360 grande operacao texto 9430 executou chunk atualizou 7565 gerar mediu checksum 5276 comparou confirmou comparou 8765 arquivo pequeno operacao 2093 pasta cenário mediu 4585
+
+mediu processo atualizou 6944 correto verificou enviar 1922 código imagem legível 8963 processo lento conteúdo 9353 avaliou verificou ler 772 enviar criar ordem 452 criar revisou codificar 6272 cenário código transportar 2874 mediu conteúdo texto 6812 completo operacao correto 4990
+
+código transportar binário 9702 lento gerar correto 2062 enviar processo relatou 6210 texto dados comparou 2952 registrou binário código 9004 gerar compactar decodificar 1329 ordem executou compactar 9124 compactar relatou arquivo 8529 código ler checksum 3467 enviar dados texto 4566
+
+transportar relatou tamanho 936 grande atualizou resultado 2230 código arquivo atualizou 330 dados codificar conteúdo 9921 pequeno criar tamanho 2383 binário integridade checksum 5146 reconstruir grande integridade 4596 etapa avaliou arquivo 557 transportar pasta correto 5809 arquivo ordem correto 1728
+
+verificou completo código 3153 transportar verificou relatou 236 validar arquivo completo 1594 integridade confirmou atualizou 9706 transportar etapa comparou 6777 enviar integridade compactar 2108 ler checksum payload 7988 grande correto checksum 5268 pasta transportar atualizou 1374 dados reconstruir imagem 4813
+
+operacao avaliou inválido 7526 arquivo validar avaliou 5172 validar binário ler 4514 ordem teste codificar 3174 texto transportar reconstruir 2536 correto checksum relatou 9838 comparou executou texto 4393 etapa ler checksum 3158 cenário pasta resultado 6745 legível completo processo 1837
+
+correto validar texto 3969 conteúdo codificar enviar 5820 decodificar compactar arquivo 3386 inválido resultado texto 6259 gerar gerar integridade 6006 processo parcial operacao 7286 tamanho resultado checksum 9846 verificou gerar decodificar 8664 confirmou atualizou executou 7851 ordem texto chunk 8731
+
+resultado legível payload 332 imagem integridade código 6839 pasta enviar operacao 6939 resultado codificar relatou 4746 rápido confirmou chunk 9119 pequeno avaliou integridade 3975 gerar criar cenário 7244 arquivo rápido completo 9390 payload processo decodificar 2437 payload lento avaliou 2681
+
+processo imagem grande 8052 compactar imagem relatou 9119 transportar teste resultado 6015 decodificar inválido checksum 2047 relatou binário binário 4966 arquivo chunk enviar 8842 grande binário gerar 2242 etapa compactar imagem 887 parcial ordem arquivo 9112 mediu tamanho comparou 8640
+
+chunk binário decodificar 4615 imagem atualizou dados 2823 avaliou operacao avaliou 4736 tamanho confirmou decodificar 4614 atualizou ordem compactar 6134 registrou ordem operacao 527 grande avaliou relatou 2280 reconstruir ler texto 3902 imagem avaliou chunk 3752 imagem texto checksum 4271

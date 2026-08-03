@@ -1,0 +1,175 @@
+package br.com.itarocha.utilitarios.qr;
+
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.DirectoryStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.util.ArrayList;
+import java.util.Base64;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
+
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
+class QRCodeToolIntegrationTest {
+
+    private static final Path ARQUIVOS = Paths.get("src/test/resources/arquivos");
+
+    private static final Pattern GENERATED = Pattern.compile(
+            "qr_\\d+\\.png|arquivo_\\d+\\.txt|arquivo_png_\\d+\\.png|.*_traduzido\\..*");
+
+    private static final Map<String, Integer> MIN_QR_BY_FOLDER = Map.of(
+            "pasta_02", 4,
+            "pasta_03", 4
+    );
+
+    @ParameterizedTest(name = "cenário completo: {0}")
+    @MethodSource("pastas")
+    void cenarioCompleto(Path pasta) throws Exception {
+        cleanGenerated(pasta);
+
+        Path original = findOriginal(pasta);
+        byte[] originalBytes = Files.readAllBytes(original);
+        assertTrue(originalBytes.length > 0, "Arquivo original vazio: " + original);
+
+        int minQr = MIN_QR_BY_FOLDER.getOrDefault(pasta.getFileName().toString(), 1);
+
+        // 2) Gera os QR Codes a partir do arquivo original
+        QRCodeTool.encode(original.toString(), pasta.toString());
+        int n = countQrFiles(pasta);
+        assertTrue(n >= minQr,
+                "Esperado >= " + minQr + " QR Codes em " + pasta + ", gerado: " + n);
+
+        // 3) Lê cada imagem e grava o conteúdo (Base64) em arquivo_K.txt
+        List<byte[]> payloads = new ArrayList<>(n);
+        for (int k = 1; k <= n; k++) {
+            Path qrFile = pasta.resolve(String.format("qr_%03d.png", k));
+            byte[] payload = QrCodeImage.read(qrFile);
+            payloads.add(payload);
+
+            String content = Base64.getEncoder().encodeToString(payload);
+            Path txtFile = pasta.resolve(String.format("arquivo_%02d.txt", k));
+            Files.writeString(txtFile, content, StandardCharsets.UTF_8);
+
+            assertTrue(Files.exists(txtFile), "Arquivo texto não gerado: " + txtFile);
+            assertEquals(content, Files.readString(txtFile, StandardCharsets.UTF_8));
+            assertArrayEquals(payload, Base64.getDecoder().decode(content),
+                    "Conteúdo do arquivo_%02d.txt não é o Base64 do qr_%03d.png".formatted(k, k));
+        }
+
+        // 4) Regenera os PNGs a partir dos arquivos texto (make_png)
+        Path makePngOut = pasta.resolve("make_png");
+        QRCodeTool.makePng(pasta.toString(), makePngOut.toString());
+        for (int k = 1; k <= n; k++) {
+            Path pngFile = makePngOut.resolve(String.format("qr_%03d.png", k));
+            assertTrue(Files.exists(pngFile), "PNG não gerado: " + pngFile);
+            assertArrayEquals(payloads.get(k - 1), QrCodeImage.read(pngFile),
+                    "make_png/qr_%03d.png deveria decodificar para o payload de qr_%03d.png".formatted(k, k));
+        }
+
+        // 5) Reconstrói o arquivo a partir dos qr_*.png
+        Path traduzido = traduzidoPath(original);
+        QRCodeTool.decode(pasta.toString(), traduzido.toString());
+        assertTrue(Files.exists(traduzido), "Arquivo traduzido não gerado: " + traduzido);
+        assertArrayEquals(originalBytes, Files.readAllBytes(traduzido),
+                "Conteúdo traduzido difere do original em " + pasta);
+
+        // 6) MD5 do traduzido deve ser igual ao do original
+        assertEquals(md5(originalBytes), md5(Files.readAllBytes(traduzido)),
+                "MD5 do arquivo traduzido deve ser igual ao do original em " + pasta);
+    }
+
+    private static Stream<Path> pastas() throws IOException {
+        List<Path> pastas = new ArrayList<>();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(ARQUIVOS, "pasta_*")) {
+            for (Path pasta : stream) {
+                pastas.add(pasta);
+            }
+        }
+        pastas.sort(Comparator.comparing(p -> p.getFileName().toString()));
+        assertFalse(pastas.isEmpty(), "Nenhuma pasta_* encontrada em " + ARQUIVOS);
+        return pastas.stream();
+    }
+
+    private static void cleanGenerated(Path pasta) throws IOException {
+        if (!Files.isDirectory(pasta)) {
+            return;
+        }
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(pasta)) {
+            for (Path entry : stream) {
+                if (Files.isDirectory(entry)) {
+                    deleteTree(entry);
+                } else if (GENERATED.matcher(entry.getFileName().toString()).matches()) {
+                    Files.delete(entry);
+                }
+            }
+        }
+    }
+
+    private static void deleteTree(Path dir) throws IOException {
+        if (!Files.isDirectory(dir)) {
+            return;
+        }
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir)) {
+            for (Path entry : stream) {
+                if (Files.isDirectory(entry)) {
+                    deleteTree(entry);
+                } else {
+                    Files.delete(entry);
+                }
+            }
+        }
+        Files.delete(dir);
+    }
+
+    private static Path findOriginal(Path pasta) throws IOException {
+        List<Path> remaining = new ArrayList<>();
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(pasta)) {
+            for (Path entry : stream) {
+                remaining.add(entry);
+            }
+        }
+        assertEquals(1, remaining.size(),
+                "Esperado exatamente 1 arquivo original em " + pasta + ", encontrado: " + remaining);
+        return remaining.get(0);
+    }
+
+    private static int countQrFiles(Path dir) throws IOException {
+        int count = 0;
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, "qr_*.png")) {
+            for (Path ignored : stream) {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private static Path traduzidoPath(Path original) {
+        String name = original.getFileName().toString();
+        int dot = name.lastIndexOf('.');
+        String stem = dot >= 0 ? name.substring(0, dot) : name;
+        String ext = dot >= 0 ? name.substring(dot) : "";
+        return original.resolveSibling(stem + "_traduzido" + ext);
+    }
+
+    private static String md5(byte[] data) throws Exception {
+        byte[] digest = MessageDigest.getInstance("MD5").digest(data);
+        StringBuilder sb = new StringBuilder(digest.length * 2);
+        for (byte b : digest) {
+            sb.append(String.format("%02x", b));
+        }
+        return sb.toString();
+    }
+}
