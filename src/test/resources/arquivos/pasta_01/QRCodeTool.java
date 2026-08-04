@@ -6,7 +6,6 @@ import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
@@ -178,25 +177,25 @@ public class QRCodeTool {
             return;
         }
 
-        for (int i = 0; i < textFiles.size(); i++) {
-            String base64 = Files.readString(textFiles.get(i), StandardCharsets.UTF_8);
-            String pngName = ("%s%0" + Constants.FILE_NAME_DIGITS + "d.png")
-                    .formatted(Constants.QR_PREFIX, i + 1);
-            QrCodeImage.writeFromBase64(base64, out.resolve(pngName));
-        }
+        IntStream.range(0, textFiles.size())
+                .mapToObj(i -> new TextPngFile(textFiles.get(i), out.resolve(fileName(i + 1))))
+                .forEach(unchecked(TextPngFile::write));
 
         System.out.println(Messages.PNGS_GENERATED.formatted(textFiles.size(), out));
     }
 
-    private static List<Path> listTextFiles(Path dir) throws IOException {
-        List<Path> textFiles = new ArrayList<>();
-        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, Constants.TXT_PREFIX + "*.txt")) {
-            for (Path entry : stream) {
-                textFiles.add(entry);
-            }
+    private record TextPngFile(Path source, Path target) {
+        void write() throws Exception {
+            QrCodeImage.writeFromBase64(Files.readString(source, StandardCharsets.UTF_8), target);
         }
-        textFiles.sort(Comparator.comparing(path -> path.getFileName().toString()));
-        return textFiles;
+    }
+
+    private static List<Path> listTextFiles(Path dir) throws IOException {
+        try (DirectoryStream<Path> stream = Files.newDirectoryStream(dir, Constants.TXT_PREFIX + "*.txt")) {
+            return StreamSupport.stream(stream.spliterator(), false)
+                    .sorted(Comparator.comparing(path -> path.getFileName().toString()))
+                    .toList();
+        }
     }
 
     private static List<Path> listQrFiles(Path dir) throws IOException {
