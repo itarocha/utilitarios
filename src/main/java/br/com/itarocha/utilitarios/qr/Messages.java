@@ -5,7 +5,7 @@ public final class Messages {
     private Messages() {
     }
 
-    // QRCodeTool
+    // QRCodeTool (fachada CLI)
     public static final String INVALID_MODE = "Modo inválido. Use -encode, -decode ou -make_png.";
     public static final String USAGE_HEADER = "Uso:";
     public static final String USAGE_ENCODE = "  Codificar: java QRCodeTool -encode <arquivo_entrada> <diretorio_saida>";
@@ -13,11 +13,17 @@ public final class Messages {
     public static final String USAGE_MAKE_PNG_TITLE = "  Gerar PNGs a partir de arquivos texto Base64:";
     public static final String USAGE_MAKE_PNG_CMD = "    java QRCodeTool -make_png <diretorio_entrada> [<diretorio_saida>]";
     public static final String USAGE_MAKE_PNG_HINT = "    (se <diretorio_saida> for omitido, usa o próprio diretório de entrada)";
+
+    // Encoder
     public static final String EMPTY_INPUT_FILE = "Arquivo de entrada vazio: %s";
     public static final String ENCODE_DONE = "Codificação concluída. %d QR Codes gerados em: %s";
+
+    // Decoder
     public static final String NO_QR_FOUND = "Nenhum arquivo QR Code encontrado em: %s";
     public static final String BAD_CHECKSUM = "Checksum inválido! Dados corrompidos.";
     public static final String DECODE_DONE = "Decodificação concluída. Arquivo recuperado: %s";
+
+    // ImageMaker
     public static final String INPUT_DIR_NOT_FOUND = "Diretório de entrada não existe: %s";
     public static final String NO_TEXT_FILES = "Nenhum arquivo %s*.txt encontrado em: %s";
     public static final String PNGS_GENERATED = "PNGs gerados: %d em: %s";

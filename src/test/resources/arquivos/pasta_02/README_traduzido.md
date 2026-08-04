@@ -177,6 +177,10 @@ utilitarios/
     │   │   ├── UtilitariosApplication.java        # Bootstrap Spring Boot
     │   │   └── qr/
     │   │       ├── QRCodeTool.java                # Fachada + CLI
+    │   │       ├── Encoder.java                   # Codificação (encode)
+    │   │       ├── Decoder.java                   # Decodificação (decode)
+    │   │       ├── ImageMaker.java                # Geração de PNGs a partir de texto Base64
+    │   │       ├── Unchecked.java                 # Streams com exceções checadas (sneaky-throw)
     │   │       ├── Constants.java                 # Constantes de nomes de arquivo
     │   │       ├── Messages.java                  # Constantes de mensagens
     │   │       ├── Compression.java               # GZIP
@@ -188,7 +192,9 @@ utilitarios/
         ├── java/br/com/itarocha/utilitarios/
         │   ├── UtilitariosApplicationTests.java
         │   └── qr/
-        │       ├── QRCodeToolTest.java
+        │       ├── EncoderTest.java
+        │       ├── DecoderTest.java
+        │       ├── ImageMakerTest.java
         │       ├── QRCodeToolIntegrationTest.java
         │       ├── CompressionTest.java
         │       ├── ChecksumTest.java
@@ -209,7 +215,7 @@ Todas as classes do pacote `br.com.itarocha.utilitarios.qr`, exceto a fachada, s
 
 ### `QRCodeTool` — fachada e ponto de entrada (CLI)
 
-Classe de orquestração. Recebe as etapas realizadas pelas demais classes. Os nomes de arquivos são montados a partir das constantes de `Constants`.
+Classe de orquestração. Apenas interpreta os argumentos da CLI e delega cada modo para a classe responsável (`Encoder`, `Decoder` ou `ImageMaker`).
 
 **Métodos**
 
@@ -218,12 +224,26 @@ Classe de orquestração. Recebe as etapas realizadas pelas demais classes. Os n
   - Com menos de 2 argumentos imprime o uso e sai com código 1; `-encode`/`-decode` exigem 3 argumentos.
   - Modo desconhecido imprime erro e sai com código 1.
 
+- **`usage()`** *(privado)* — imprime o uso da CLI (`Messages.USAGE_*`).
+
+### `Encoder` — codificação
+
+**Métodos**
+
 - **`encode(String inputFile, String outputDir)`**
   - Lê o arquivo de entrada; lança `IllegalArgumentException` se vazio.
   - Calcula o CRC32 dos dados originais.
   - Compacta com GZIP e divide em chunks (`ChunkCodec.split`).
-  - Cria o diretório de saída, se necessário, e grava um PNG por chunk (`QrCodeImage.write`).
+  - Cria o diretório de saída, se necessário, e grava um PNG por chunk (`QrCodeImage.write`), nomeando-os via `Constants.qrFileName`.
   - Imprime a quantidade de QR Codes gerados.
+
+- **`createOutputDir(String outputDir)`** *(privado)* — cria o diretório de saída se não existir.
+- **`readAndSplit(Path input)`** *(privado)* — lê os bytes, valida e gera os chunks.
+- **`record ChunkFile(byte[] payload, Path target)`** *(privado)* — grava um payload em PNG.
+
+### `Decoder` — decodificação
+
+**Métodos**
 
 - **`decode(String inputDir, String outputFile)`**
   - Lista e ordena os arquivos `qr_*.png`.
@@ -234,18 +254,30 @@ Classe de orquestração. Recebe as etapas realizadas pelas demais classes. Os n
   - Verifica o checksum; lança `IOException` se divergente.
   - Grava o arquivo recuperado.
 
+- **`reassembleAndVerify(List<byte[]> payloads)`** *(privado)* — remonta, descompacta e valida o CRC32.
+- **`listQrFiles(Path dir)`** *(privado)* — lista os arquivos do diretório que casam com `qr_*.png`.
+- **`extractChunkNumber(Path file)`** *(privado)* — extrai o número do nome (`qr_001.png` → `1`).
+
+### `ImageMaker` — geração de PNGs a partir de textos Base64
+
+**Métodos**
+
 - **`makePng(String inputDir, String outputDir)`**
   - Lista e ordena os arquivos `arquivo_*.txt` do diretório de entrada.
   - Se `outputDir` for nulo ou vazio, usa o próprio diretório de entrada.
-  - Para cada arquivo, chama `QrCodeImage.writeFromBase64` e gera `qr_001.png`, `qr_002.png`, … no diretório de saída.
+  - Para cada arquivo, chama `QrCodeImage.writeFromBase64` e gera `qr_001.png`, `qr_002.png`, … no diretório de saída, nomeando-os via `Constants.qrFileName`.
   - Sem arquivos `arquivo_*.txt` → imprime aviso e retorna; diretório de entrada inexistente → `IllegalArgumentException`.
   - Imprime a quantidade de PNGs gerados.
 
-- **`listQrFiles(Path dir)`** *(privado)* — lista os arquivos do diretório que casam com `qr_*.png`.
-
+- **`record TextPngFile(Path source, Path target)`** *(privado)* — lê o Base64 do arquivo e grava o PNG.
 - **`listTextFiles(Path dir)`** *(privado)* — lista e ordena os arquivos do diretório que casam com `arquivo_*.txt`.
 
-- **`extractChunkNumber(Path file)`** *(privado)* — extrai o número do nome (`qr_001.png` → `1`).
+### `Unchecked` — suporte a streams com exceções checadas
+
+Adapta operações que lançam exceções checadas para `Consumer`/`Function`, relançando a exceção original sem declará-la (padrão sneaky-throw). Permite o uso de Streams e method references no código funcional das demais classes.
+
+- **`unchecked(ThrowingConsumer<T>)`** / **`unchecked(ThrowingFunction<T, R>)`** — retornam um `Consumer<T>`/`Function<T, R>` que executa a operação e relança qualquer exceção de forma "não checada".
+- **`ThrowingConsumer<T>`** / **`ThrowingFunction<T, R>`** — interfaces funcionais aninhadas que declaram `throws Exception`.
 
 ### `Constants` — constantes de nomenclatura
 
@@ -256,6 +288,10 @@ Classe `final` com construtor privado, contendo apenas constantes `public static
 | `QR_PREFIX`        | `"qr_"`      | Prefixo dos arquivos de QR Code.                             |
 | `TXT_PREFIX`       | `"arquivo_"` | Prefixo dos arquivos texto com conteúdo Base64.              |
 | `FILE_NAME_DIGITS` | `3`          | Quantidade de dígitos do índice no nome (`qr_001`, `arquivo_001`, …). |
+
+**Métodos**
+
+- **`qrFileName(int index)`** — monta o nome de um QR Code PNG (`qr_001.png`, `qr_002.png`, …) a partir de `QR_PREFIX` e `FILE_NAME_DIGITS`. Usado por `Encoder` e `ImageMaker`.
 
 ### `Messages` — constantes de mensagens
 
@@ -404,8 +440,10 @@ As classes de teste do pacote `qr` cobrem cada etapa isoladamente (testes unitá
 
 | Classe de teste          | Cobertura                                                                                                                                                                                                                          |
 |--------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `QRCodeToolTest`         | Fim-a-fim via fachada: round-trips (pequeno, múltiplos chunks, binário), arquivo vazio lança exceção, chunk faltante e QR corrompido falham; `makePng` converte todos os `arquivo_*.txt` de um diretório em `qr_%03d.png` (saída omitida usa a mesma pasta), Base64 inválido lança `IOException` e diretório sem `arquivo_*.txt` não gera erro. |
-| `QRCodeToolIntegrationTest` | Cenários completos por pasta: gera os QR Codes de um arquivo original, lê o conteúdo em `arquivo_NNN.txt`, regenera PNGs via `-make_png` (subpasta `make_png/`) e reconstrói o `<original>_traduzido.<ext>`, comparando o **MD5** com o original.           |
+| `EncoderTest`            | `encode` isoladamente: arquivo pequeno gera 1 QR, arquivo grande gera múltiplos QRs, dados binários com bytes altos geram QRs legíveis e arquivo vazio lança `IllegalArgumentException`.                                         |
+| `DecoderTest`            | `decode` isoladamente: chunk faltante e QR corrompido lançam exceção.                                                                                                                                                             |
+| `ImageMakerTest`         | `makePng` converte todos os `arquivo_*.txt` de um diretório em `qr_%03d.png` (saída omitida usa a mesma pasta), Base64 inválido lança `IOException` e diretório sem `arquivo_*.txt` não gera erro.                                  |
+| `QRCodeToolIntegrationTest` | Cenários completos por pasta: gera os QR Codes de um arquivo original, lê o conteúdo em `arquivo_NNN.txt`, regenera PNGs via `-make_png` (subpasta `make_png/`) e reconstrói o `<original>_traduzido.<ext>`, comparando o **MD5** com o original. Também cobre os **round-trips** fim-a-fim `encode` → `decode` (pequeno, múltiplos chunks, binário). |
 | `CompressionTest`        | Round-trip compress/decompress (pequeno, grande, vazio); dados inválidos lançam `IOException`.                                                                                                                                     |
 | `ChecksumTest`           | Vetor padrão CRC32 (`"123456789"` → `0xCBF43926`); `verify` verdadeiro/falso; checksum de dados vazios.                                                                                                                            |
 | `ChunkCodecTest`         | `split` gera quantidade/tamanhos esperados (cabeçalho 8/4 bytes); round-trip split→reassemble; chunk faltante/duplicado/inconsistente lançam `IOException`.                                                                        |
@@ -428,10 +466,10 @@ O `QRCodeToolIntegrationTest` usa `@ParameterizedTest` + `@MethodSource` para **
 **Passos executados por cenário:**
 
 1. Limpa os artefatos gerados anteriormente (`qr_*.png`, `arquivo_*.txt`, `arquivo_png_*.png`, `*_traduzido.*` e a subpasta `make_png/`), restando apenas o original.
-2. `QRCodeTool.encode(original, pasta)` → gera os `qr_*.png`; verifica que a quantidade atende ao mínimo esperado do cenário.
+2. `Encoder.encode(original, pasta)` → gera os `qr_*.png`; verifica que a quantidade atende ao mínimo esperado do cenário.
 3. Para cada `k`, lê `qr_00k.png` (`QrCodeImage.read`) e grava `arquivo_00k.txt` com `Base64.encodeToString(payload)`; valida que o conteúdo é Base64 válido e igual ao do payload.
-4. `QRCodeTool.makePng(pasta, pasta/make_png)` → gera `make_png/qr_%03d.png`; valida que cada PNG decodifica para o mesmo payload de `qr_00k.png`.
-5. `QRCodeTool.decode(pasta, <nome>_traduzido.<ext>)`; valida que o conteúdo é **idêntico** ao original.
+4. `ImageMaker.makePng(pasta, pasta/make_png)` → gera `make_png/qr_%03d.png`; valida que cada PNG decodifica para o mesmo payload de `qr_00k.png`.
+5. `Decoder.decode(pasta, <nome>_traduzido.<ext>)`; valida que o conteúdo é **idêntico** ao original.
 6. Compara o **MD5** do original com o do arquivo traduzido.
 
 **Cenários disponíveis:**
@@ -439,7 +477,7 @@ O `QRCodeToolIntegrationTest` usa `@ParameterizedTest` + `@MethodSource` para **
 | Cenário    | Arquivo original | QR Codes | Observação                                   |
 |------------|------------------|----------|----------------------------------------------|
 | `pasta_01` | `QRCodeTool.java` | 1      | Fonte real, arquivo pequeno.                 |
-| `pasta_02` | `README.md`      | 4      | Texto real grande do repositório.            |
+| `pasta_02` | `README.md`      | 5      | Texto real grande do repositório.            |
 | `pasta_03` | `texto_longo.txt`| 4      | Fixture texto determinístico (~24 KB).       |
 
 > Observações: apenas o arquivo original é versionado; os demais artefatos são **regenerados a cada execução** (o teste remove os anteriores, tornando o cenário idempotente). O MD5 é a asserção final de integridade de cada cenário.

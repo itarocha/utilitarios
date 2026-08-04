@@ -1,5 +1,7 @@
 package br.com.itarocha.utilitarios.qr;
 
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
 
@@ -15,6 +17,7 @@ import java.util.Base64;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -26,12 +29,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class QRCodeToolIntegrationTest {
 
     private static final Path ARQUIVOS = Paths.get("src/test/resources/arquivos");
+    private static final Random RANDOM = new Random(42L);
 
     private static final Pattern GENERATED = Pattern.compile(
             "qr_\\d+\\.png|arquivo_\\d+\\.txt|arquivo_png_\\d+\\.png|.*_traduzido\\..*");
 
     private static final Map<String, Integer> MIN_QR_BY_FOLDER = Map.of(
-            "pasta_02", 4,
+            "pasta_02", 5,
             "pasta_03", 4
     );
 
@@ -47,7 +51,7 @@ class QRCodeToolIntegrationTest {
         int minQr = MIN_QR_BY_FOLDER.getOrDefault(pasta.getFileName().toString(), 1);
 
         // 2) Gera os QR Codes a partir do arquivo original
-        QRCodeTool.encode(original.toString(), pasta.toString());
+        Encoder.encode(original.toString(), pasta.toString());
         int n = countQrFiles(pasta);
         assertTrue(n >= minQr,
                 "Esperado >= " + minQr + " QR Codes em " + pasta + ", gerado: " + n);
@@ -55,7 +59,7 @@ class QRCodeToolIntegrationTest {
         // 3) Lê cada imagem e grava o conteúdo (Base64) em arquivo_KKK.txt
         List<byte[]> payloads = new ArrayList<>(n);
         for (int k = 1; k <= n; k++) {
-            Path qrFile = pasta.resolve(qrFileName(k));
+            Path qrFile = pasta.resolve(Constants.qrFileName(k));
             byte[] payload = QrCodeImage.read(qrFile);
             payloads.add(payload);
 
@@ -66,23 +70,23 @@ class QRCodeToolIntegrationTest {
             assertTrue(Files.exists(txtFile), "Arquivo texto não gerado: " + txtFile);
             assertEquals(content, Files.readString(txtFile, StandardCharsets.UTF_8));
             assertArrayEquals(payload, Base64.getDecoder().decode(content),
-                    "Conteúdo do %s não é o Base64 do %s".formatted(txtFileName(k), qrFileName(k)));
+                    "Conteúdo do %s não é o Base64 do %s".formatted(txtFileName(k), Constants.qrFileName(k)));
         }
 
         // 4) Regenera os PNGs a partir dos arquivos texto (make_png)
         Path makePngOut = pasta.resolve("make_png");
-        QRCodeTool.makePng(pasta.toString(), makePngOut.toString());
+        ImageMaker.makePng(pasta.toString(), makePngOut.toString());
         for (int k = 1; k <= n; k++) {
-            Path pngFile = makePngOut.resolve(qrFileName(k));
+            Path pngFile = makePngOut.resolve(Constants.qrFileName(k));
             assertTrue(Files.exists(pngFile), "PNG não gerado: " + pngFile);
             assertArrayEquals(payloads.get(k - 1), QrCodeImage.read(pngFile),
                     "make_png/%s deveria decodificar para o payload de %s"
-                            .formatted(qrFileName(k), qrFileName(k)));
+                            .formatted(Constants.qrFileName(k), Constants.qrFileName(k)));
         }
 
         // 5) Reconstrói o arquivo a partir dos qr_*.png
         Path traduzido = traduzidoPath(original);
-        QRCodeTool.decode(pasta.toString(), traduzido.toString());
+        Decoder.decode(pasta.toString(), traduzido.toString());
         assertTrue(Files.exists(traduzido), "Arquivo traduzido não gerado: " + traduzido);
         assertArrayEquals(originalBytes, Files.readAllBytes(traduzido),
                 "Conteúdo traduzido difere do original em " + pasta);
@@ -90,6 +94,62 @@ class QRCodeToolIntegrationTest {
         // 6) MD5 do traduzido deve ser igual ao do original
         assertEquals(md5(originalBytes), md5(Files.readAllBytes(traduzido)),
                 "MD5 do arquivo traduzido deve ser igual ao do original em " + pasta);
+    }
+
+    @Test
+    void roundTripSmallFile(@TempDir Path tempDir) throws Exception {
+        byte[] original = randomBytes(100);
+
+        Path input = tempDir.resolve("pequeno.bin");
+        Files.write(input, original);
+
+        Path outDir = tempDir.resolve("qrs_small");
+        Path recovered = tempDir.resolve("pequeno_recuperado.bin");
+
+        Encoder.encode(input.toString(), outDir.toString());
+        assertEquals(1, countQrFiles(outDir));
+
+        Decoder.decode(outDir.toString(), recovered.toString());
+        assertArrayEquals(original, Files.readAllBytes(recovered));
+    }
+
+    @Test
+    void roundTripMultipleChunks(@TempDir Path tempDir) throws Exception {
+        byte[] original = randomBytes(6000);
+
+        Path input = tempDir.resolve("grande.bin");
+        Files.write(input, original);
+
+        Path outDir = tempDir.resolve("qrs_multi");
+        Path recovered = tempDir.resolve("grande_recuperado.bin");
+
+        Encoder.encode(input.toString(), outDir.toString());
+        int qrCount = countQrFiles(outDir);
+        assertTrue(qrCount >= 2, "Esperado múltiplos QR Codes, gerado: " + qrCount);
+
+        Decoder.decode(outDir.toString(), recovered.toString());
+        assertArrayEquals(original, Files.readAllBytes(recovered));
+    }
+
+    @Test
+    void roundTripBinaryDataWithHighBytes(@TempDir Path tempDir) throws Exception {
+        byte[] original = randomBytes(3000);
+
+        Path input = tempDir.resolve("binario_alto.bin");
+        Files.write(input, original);
+
+        Path outDir = tempDir.resolve("qrs_high");
+        Path recovered = tempDir.resolve("binario_alto_recuperado.bin");
+
+        Encoder.encode(input.toString(), outDir.toString());
+        Decoder.decode(outDir.toString(), recovered.toString());
+        assertArrayEquals(original, Files.readAllBytes(recovered));
+    }
+
+    private static byte[] randomBytes(int size) {
+        byte[] data = new byte[size];
+        RANDOM.nextBytes(data);
+        return data;
     }
 
     private static Stream<Path> pastas() throws IOException {
@@ -155,10 +215,6 @@ class QRCodeToolIntegrationTest {
             }
         }
         return count;
-    }
-
-    private static String qrFileName(int index) {
-        return String.format("%s%0" + Constants.FILE_NAME_DIGITS + "d.png", Constants.QR_PREFIX, index);
     }
 
     private static String txtFileName(int index) {
